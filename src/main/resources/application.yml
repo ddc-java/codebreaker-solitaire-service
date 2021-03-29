@@ -1,0 +1,25 @@
+spring:
+  jackson:
+    deserialization:
+      accept-float-as-int: false
+  datasource:
+    url: jdbc:derby:codebreaker-db;create=true;collation=TERRITORY_BASED:PRIMARY
+  jpa:
+    database-platform: org.hibernate.dialect.DerbyTenSevenDialect
+    hibernate:
+      ddl-auto: update
+#    properties:
+#      javax:
+#        persistence:
+#          schema-generation:
+#            create-source: metadata
+#            scripts:
+#              action: create
+#              create-target: ddl.sql
+
+server:
+  servlet:
+    context-path: /codebreaker
+  error:
+    include-message: always
+

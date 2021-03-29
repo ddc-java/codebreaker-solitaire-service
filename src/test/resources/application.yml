@@ -1,0 +1,11 @@
+spring:
+  jackson:
+    deserialization:
+      accept-float-as-int: false
+
+server:
+  servlet:
+    context-path: /codebreaker
+  error:
+    include-message: always
+
