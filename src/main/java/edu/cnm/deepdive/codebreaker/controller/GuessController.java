@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/codes/{codeId:" + ValidationPatterns.UUID_PATTERN + "}/guesses")
+@RequestMapping("/codes/{codeId:" + ValidationPatterns.ID_PATTERN + "}/guesses")
 public class GuessController {
 
   private final CodeService codeService;
@@ -34,7 +34,7 @@ public class GuessController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @JsonView(GuessView.Flat.class)
-  public Iterable<Guess> list(@PathVariable UUID codeId) {
+  public Iterable<Guess> list(@PathVariable String codeId) {
     return codeService
         .get(codeId)
         .map(Code::getGuesses)
@@ -44,22 +44,22 @@ public class GuessController {
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   @JsonView(GuessView.Flat.class)
-  public ResponseEntity<Guess> post(@PathVariable UUID codeId, @Valid @RequestBody Guess guess) {
+  public ResponseEntity<Guess> post(@PathVariable String codeId, @Valid @RequestBody Guess guess) {
     return codeService
         .get(codeId)
         .map((code) -> guessService.add(code, guess))
         .map((g) -> ResponseEntity.created(WebMvcLinkBuilder
             .linkTo(WebMvcLinkBuilder
                 .methodOn(GuessController.class)
-                .get(codeId, g.getId()))
+                .get(codeId, g.getKey()))
             .toUri()).body(g))
         .orElseThrow();
   }
 
-  @GetMapping(value = ValidationPatterns.UUID_PATH_PARAMETER_PATTERN,
+  @GetMapping(value = ValidationPatterns.ID_PATH_PARAMETER_PATTERN,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @JsonView(GuessView.Flat.class)
-  public Guess get(@PathVariable UUID codeId, @PathVariable UUID id) {
+  public Guess get(@PathVariable String codeId, @PathVariable String id) {
     return codeService
         .get(codeId)
         .flatMap((code) -> guessService.get(id))

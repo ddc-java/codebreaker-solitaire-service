@@ -19,11 +19,13 @@ public class CodeService {
   private static final String NULL_CHARACTER_MESSAGE = "must not contain null character";
 
   private final CodeRepository codeRepository;
+  private final UUIDStringifier stringifier;
   private final Random rng;
 
   @Autowired
-  public CodeService(CodeRepository codeRepository, Random rng) {
+  public CodeService(CodeRepository codeRepository, UUIDStringifier stringifier, Random rng) {
     this.codeRepository = codeRepository;
+    this.stringifier = stringifier;
     this.rng = rng;
   }
 
@@ -46,8 +48,9 @@ public class CodeService {
     return codeRepository.save(code);
   }
 
-  public Optional<Code> get(@NonNull UUID id) {
-    return codeRepository.findById(id);
+  public Optional<Code> get(@NonNull String id) {
+    UUID uuid = stringifier.fromString(id);
+    return codeRepository.findById(uuid);
   }
 
   public void remove(@NonNull Code code) {

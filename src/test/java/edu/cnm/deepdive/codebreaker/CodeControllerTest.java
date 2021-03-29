@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -230,20 +231,21 @@ class CodeControllerTest {
             .type(JsonFieldType.NUMBER),
         fieldWithPath("solved")
             .description("Flag indicating whether code has been guessed successfully.")
-            .type(JsonFieldType.BOOLEAN),
-        fieldWithPath("text")
-            .description("Actual code text. This is only included for codes that have been solved.")
-            .type(JsonFieldType.STRING)
-            .optional()
+            .type(JsonFieldType.BOOLEAN)
     );
   }
 
   private List<FieldDescriptor> getHierarchicalFields() {
     List<FieldDescriptor> fields = new LinkedList<>(getFlatFields());
-    fields.add(
+    Collections.addAll(
+        fields,
         subsectionWithPath("guesses")
             .description("All guesses submitted for this code, in order of submission.")
-            .type(JsonFieldType.ARRAY)
+            .type(JsonFieldType.ARRAY),
+        fieldWithPath("text")
+            .description("Actual code text. This is only included for codes that have been solved.")
+            .type(JsonFieldType.STRING)
+            .optional()
     );
     return fields;
   }

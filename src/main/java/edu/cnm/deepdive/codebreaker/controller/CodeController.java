@@ -44,23 +44,23 @@ public class CodeController {
     URI location = WebMvcLinkBuilder
         .linkTo(WebMvcLinkBuilder
             .methodOn(CodeController.class)
-            .get(code.getId()))
+            .get(code.getKey()))
         .toUri();
     return ResponseEntity.created(location).body(code);
   }
 
-  @GetMapping(value = ValidationPatterns.UUID_PATH_PARAMETER_PATTERN,
+  @GetMapping(value = ValidationPatterns.ID_PATH_PARAMETER_PATTERN,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @JsonView(CodeView.Hierarchical.class)
-  public Code get(@PathVariable UUID id) {
+  public Code get(@PathVariable String id) {
     return codeService
         .get(id)
         .orElseThrow();
   }
 
-  @DeleteMapping(value = ValidationPatterns.UUID_PATH_PARAMETER_PATTERN)
+  @DeleteMapping(value = ValidationPatterns.ID_PATH_PARAMETER_PATTERN)
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void delete(@PathVariable UUID id) {
+  public void delete(@PathVariable String id) {
     codeService
         .get(id)
         .stream()

@@ -2,7 +2,6 @@ package edu.cnm.deepdive.codebreaker.service;
 
 import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.AlreadySolvedException;
 import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.InvalidPropertyException;
-import edu.cnm.deepdive.codebreaker.model.dao.CodeRepository;
 import edu.cnm.deepdive.codebreaker.model.dao.GuessRepository;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
@@ -22,10 +21,12 @@ public class GuessService {
   private static final String INVALID_LENGTH_FORMAT = "must have a length of exactly %d characters";
 
   private final GuessRepository guessRepository;
+  private final UUIDStringifier stringifier;
 
   @Autowired
-  public GuessService(GuessRepository guessRepository) {
+  public GuessService(GuessRepository guessRepository, UUIDStringifier stringifier) {
     this.guessRepository = guessRepository;
+    this.stringifier = stringifier;
   }
 
   public Guess add(@NonNull Code code, @NonNull Guess guess) {
@@ -57,8 +58,9 @@ public class GuessService {
     return guessRepository.save(guess);
   }
 
-  public Optional<Guess> get(@NonNull UUID id) {
-    return guessRepository.findById(id);
+  public Optional<Guess> get(@NonNull String id) {
+    UUID uuid = stringifier.fromString(id);
+    return guessRepository.findById(uuid);
   }
 
   private void validate(Code code, Guess guess) {

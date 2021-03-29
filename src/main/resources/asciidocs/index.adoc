@@ -13,20 +13,21 @@ Nicholas Bennett;
 = Overview
 
 [[overview_http_verbs]]
-== HTTP verbs
+== What is _Codebreaker_?
 
-Codebreaker adheres as closely as possible to standard HTTP and REST conventions in its
-use of HTTP verbs. The subset of HTTP verbs used in this API are as follows:
+_Codebreaker_ is a simple RESTful service that permits consumers of the service to present and play a deductive logic game, where the goal is to guess a secret code generated (at random) by the service.
+
+In the current implementation,
 
 |===
 | Verb | Usage
 
-| `GET` | Used to retrieve a resource, or a collection of resources.
+| `GET` | Used to retrieve a resource (`Code` or `Guess`), or a collection of resources.
 
 | `POST` | Used to create a new resource.
 
 | `DELETE`
-| Used to delete an existing resource.
+| Used to delete an existing `Code` resource, along with all of the related guesses.
 |===
 
 [[overview_http_status_codes]]
@@ -75,10 +76,9 @@ include::{snippets}/error-example/http-response.adoc[]
 = Resources
 
 [[resources_index]]
-== Index
+== Codes
 
-The index provides the entry point into the service.
-
+Play begins with creation of a new `Code` resource with a `POST` request. After that, the status of a
 [[resources_index_access]]
 === Accessing the index
 
