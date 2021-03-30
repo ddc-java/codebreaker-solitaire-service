@@ -19,10 +19,6 @@
 
   <properties>
     <java.version>11</java.version>
-    <asciidoctor-plugin.version>1.5.6</asciidoctor-plugin.version>
-    <spring-restdocs.version>2.0.5.RELEASE</spring-restdocs.version>
-    <snippets-directory>${project.build.directory}/generated-snippets</snippets-directory>
-    <generated-docs-directory>${project.build.directory}/generated-docs</generated-docs-directory>
   </properties>
 
   <dependencies>
@@ -85,10 +81,10 @@
               <backend>html</backend>
               <doctype>book</doctype>
               <attributes>
-                <snippets>${snippets-directory}</snippets>
+                <snippets>${project.build.directory}/generated-snippets</snippets>
               </attributes>
               <sourceDirectory>src/main/resources/asciidocs</sourceDirectory>
-              <outputDirectory>${generated-docs-directory}</outputDirectory>
+              <outputDirectory>src/main/resources/static</outputDirectory>
             </configuration>
           </execution>
         </executions>
