@@ -72,7 +72,7 @@ public class Code {
   @JsonIgnore
   private String text;
 
-  @Transient
+  @Column(updatable = false)
   @Min(1)
   @Max(20)
   private int length;
@@ -117,8 +117,7 @@ public class Code {
   }
 
   public int getLength() {
-    //noinspection ConstantConditions
-    return (text == null) ? length : codePoints().length;
+    return length;
   }
 
   public void setLength(int length) {

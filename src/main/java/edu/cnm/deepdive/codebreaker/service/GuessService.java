@@ -18,7 +18,7 @@ public class GuessService {
   private static final String TEXT_PROPERTY = "text";
   private static final String INVALID_CHARACTER_FORMAT =
       "must contain no characters other than \"%s\"";
-  private static final String INVALID_LENGTH_FORMAT = "must have a length of exactly %d characters";
+  private static final String INVALID_LENGTH_FORMAT = "must have a length exactly equal to the code length (%d characters)";
 
   private final GuessRepository guessRepository;
   private final UUIDStringifier stringifier;

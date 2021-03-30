@@ -22,6 +22,8 @@ import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
@@ -45,23 +48,36 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = CodebreakerApplication.class)
 class GuessControllerTest {
 
+  private final ObjectMapper objectMapper;
+  private final CodeService codeService;
+  private final GuessService guessService;
+
+  @Value("${server.servlet.context-path}")
+  private String contextPath;
+  private String contextPathPart;
   private MockMvc mockMvc;
 
   @Autowired
-  private ObjectMapper objectMapper;
-
-  @Autowired
-  private CodeService codeService;
-
-  @Autowired
-  private GuessService guessService;
+  GuessControllerTest(
+      ObjectMapper objectMapper, CodeService codeService, GuessService guessService) {
+    this.objectMapper = objectMapper;
+    this.codeService = codeService;
+    this.guessService = guessService;
+  }
 
   @BeforeEach
   public void setup(WebApplicationContext webApplicationContext,
       RestDocumentationContextProvider restDocumentation) {
+    contextPathPart = contextPath.startsWith("/") ? contextPath.substring(1) : contextPath;
     mockMvc = MockMvcBuilders
         .webAppContextSetup(webApplicationContext)
-        .apply(documentationConfiguration(restDocumentation))
+        .apply(
+            documentationConfiguration(restDocumentation)
+                .uris()
+                .withScheme("https")
+                .withHost("ddc.nickbenn.com")
+                .withPort(443)
+        )
         .build();
   }
 
@@ -79,7 +95,8 @@ class GuessControllerTest {
     codeService.add(code);
     Map<String, String> guessSkeleton = Map.of("text", "AAAA");
     mockMvc.perform(
-        post("/codes/" + code.getId() + "/guesses")
+        post("/{contextPathPart}/codes/{codeId}/guesses", contextPathPart, code.getKey())
+            .contextPath(contextPath)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(guessSkeleton))
     )
@@ -90,6 +107,7 @@ class GuessControllerTest {
                 "guess/post-valid",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
+                pathParameters(getCodePathVariables()),
                 relaxedRequestFields(getPostRequestFields()),
                 relaxedResponseFields(getFlatFields())
             )
@@ -104,7 +122,8 @@ class GuessControllerTest {
     codeService.add(code);
     Map<String, String> guessSkeleton = Map.of("text", "AAA");
     mockMvc.perform(
-        post("/codes/" + code.getId() + "/guesses")
+        post("/{contextPathPart}/codes/{codeId}/guesses", contextPathPart, code.getKey())
+            .contextPath(contextPath)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .content(objectMapper.writeValueAsString(guessSkeleton))
     )
@@ -116,6 +135,7 @@ class GuessControllerTest {
                 "guess/post-invalid",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
+                pathParameters(getCodePathVariables()),
                 relaxedRequestFields(getPostRequestFields()),
                 relaxedResponseFields(CommonFieldDescriptors.getExceptionFields())
             )
@@ -133,14 +153,17 @@ class GuessControllerTest {
       guess.setText(text);
       guessService.add(code, guess);
     }
-    mockMvc.perform(get("/codes/{codeId}/guesses", code.getId()))
+    mockMvc.perform(
+        get("/{contextPathPart}/codes/{codeId}/guesses", contextPathPart, code.getKey())
+            .contextPath(contextPath)
+    )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is(3)))
         .andDo(
             document(
                 "guess/list-valid",
                 preprocessResponse(prettyPrint()),
-                pathParameters(getPathVariables().get(0))
+                pathParameters(getCodePathVariables())
             )
         );
   }
@@ -155,15 +178,19 @@ class GuessControllerTest {
     guess.setCode(code);
     guess.setText("AAAA");
     guessService.add(code, guess);
-    mockMvc.perform(get("/codes/{codeId}/guesses/{guessId}", code.getId(), guess.getId()))
+    mockMvc.perform(
+        get("/{contextPathPart}/codes/{codeId}/guesses/{guessId}",
+            contextPathPart, code.getKey(), guess.getKey())
+            .contextPath(contextPath)
+    )
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is(guess.getId().toString())))
+        .andExpect(jsonPath("$.id", is(guess.getKey().toString())))
         .andExpect(jsonPath("$.text", is("AAAA")))
         .andDo(
             document(
                 "guess/get-valid",
                 preprocessResponse(prettyPrint()),
-                pathParameters(getPathVariables()),
+                pathParameters(getGuessPathVariables()),
                 relaxedResponseFields(getFlatFields())
             )
         );
@@ -171,18 +198,32 @@ class GuessControllerTest {
 
   @Test
   public void getGuess_invalid() throws Exception {
-    mockMvc.perform(get("/codes/00000000-0000-0000-0000-000000000000/guesses/00000000-0000-0000-0000-000000000000"))
+    mockMvc.perform(
+        get("/{contextPathPart}/codes/00000000000000000000000000/guesses/00000000000000000000000000",
+            contextPathPart)
+            .contextPath(contextPath)
+    )
         .andExpect(status().isNotFound())
         .andDo(document("guess/get-invalid"));
   }
 
-  private List<ParameterDescriptor> getPathVariables() {
+  private List<ParameterDescriptor> getCodePathVariables() {
     return List.of(
         parameterWithName("codeId")
             .description("Unique identifier of code."),
+        parameterWithName("contextPathPart")
+            .ignored()
+    );
+  }
+
+  private List<ParameterDescriptor> getGuessPathVariables() {
+    List<ParameterDescriptor> fields = new LinkedList<>(getCodePathVariables());
+    Collections.addAll(
+        fields,
         parameterWithName("guessId")
             .description("Unique identifier of guess.")
     );
+    return fields;
   }
 
   private List<FieldDescriptor> getPostRequestFields() {

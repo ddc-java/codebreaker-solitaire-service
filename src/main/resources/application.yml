@@ -18,8 +18,10 @@ spring:
 #              create-target: ddl.sql
 
 server:
-  servlet:
-    context-path: /codebreaker
   error:
     include-message: always
+  forward-headers-strategy: native
+  port: 8081
+  servlet:
+    context-path: /codebreaker
 

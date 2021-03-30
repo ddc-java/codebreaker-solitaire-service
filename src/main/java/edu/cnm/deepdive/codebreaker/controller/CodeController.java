@@ -3,9 +3,9 @@ package edu.cnm.deepdive.codebreaker.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
+import edu.cnm.deepdive.codebreaker.service.CodeService.Status;
 import edu.cnm.deepdive.codebreaker.view.CodeView;
 import java.net.URI;
-import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,8 +33,8 @@ public class CodeController {
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @JsonView(CodeView.Flat.class)
-  public Iterable<Code> list() {
-    return codeService.getAll();
+  public Iterable<Code> list(@RequestParam(required = false, defaultValue = "all") String status) {
+    return codeService.list(status);
   }
 
   @PostMapping(

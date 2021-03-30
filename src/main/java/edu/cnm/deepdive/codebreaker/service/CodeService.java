@@ -4,6 +4,7 @@ import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.Inval
 import edu.cnm.deepdive.codebreaker.model.dao.CodeRepository;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -57,12 +58,38 @@ public class CodeService {
     codeRepository.delete(code);
   }
 
-  public Iterable<Code> getAll() {
-    return codeRepository.getAllByOrderByCreatedDesc();
+  public Iterable<Code> list(@NonNull String statusString) {
+    try {
+      Status status = Status.valueOf(statusString.toUpperCase());
+      Iterable<Code> selection;
+      switch (status) {
+        case ALL:
+          selection = codeRepository.getAllByOrderByCreatedDesc();
+          break;
+        case UNSOLVED:
+          selection = codeRepository.getAllUnsolvedOrderByCreatedDesc();
+          break;
+        case SOLVED:
+          selection = codeRepository.getAllSolvedOrderByCreatedDesc();
+          break;
+        default:
+          selection = Collections.emptyList();
+          break;
+      }
+      return selection;
+    } catch (IllegalArgumentException e) {
+      throw new InvalidPropertyException("status", "must be one of ALL, UNSOLVED, or SOLVED (case-insensitive)");
+    }
   }
 
   public void clear() {
     codeRepository.deleteAll();
+  }
+
+  public enum Status {
+
+    ALL, UNSOLVED, SOLVED
+
   }
 
 }

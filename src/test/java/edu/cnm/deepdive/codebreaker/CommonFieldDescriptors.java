@@ -28,7 +28,9 @@ public class CommonFieldDescriptors {
             .type(JsonFieldType.STRING),
         subsectionWithPath("details")
             .description("Additional details, generally included with validation errors.")
+            .type(JsonFieldType.OBJECT)
             .optional()
     );
   }
+
 }

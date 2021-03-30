@@ -8,4 +8,6 @@ server:
     context-path: /codebreaker
   error:
     include-message: always
+  forward-headers-strategy: native
+  port: 8081
 

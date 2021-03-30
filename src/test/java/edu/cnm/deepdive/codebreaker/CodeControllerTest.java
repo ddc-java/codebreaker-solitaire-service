@@ -15,21 +15,27 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedR
 import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.relaxedRequestParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
+import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
+import edu.cnm.deepdive.codebreaker.service.GuessService;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
@@ -46,20 +52,36 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = CodebreakerApplication.class)
 class CodeControllerTest {
 
+  private final ObjectMapper objectMapper;
+  private final CodeService codeService;
+  private final GuessService guessService;
+
+  @Value("${server.servlet.context-path}")
+  private String contextPath;
+  private String contextPathPart;
   private MockMvc mockMvc;
 
   @Autowired
-  private ObjectMapper objectMapper;
-
-  @Autowired
-  private CodeService codeService;
+  CodeControllerTest(
+      ObjectMapper objectMapper, CodeService codeService, GuessService guessService) {
+    this.objectMapper = objectMapper;
+    this.codeService = codeService;
+    this.guessService = guessService;
+  }
 
   @BeforeEach
   public void setup(WebApplicationContext webApplicationContext,
       RestDocumentationContextProvider restDocumentation) {
+    contextPathPart = contextPath.startsWith("/") ? contextPath.substring(1) : contextPath;
     mockMvc = MockMvcBuilders
         .webAppContextSetup(webApplicationContext)
-        .apply(documentationConfiguration(restDocumentation))
+        .apply(
+            documentationConfiguration(restDocumentation)
+                .uris()
+                .withScheme("https")
+                .withHost("ddc.nickbenn.com")
+                .withPort(443)
+        )
         .build();
   }
 
@@ -71,13 +93,14 @@ class CodeControllerTest {
 
   @Test
   public void postCode_valid() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(4);
+    Map<String, Object> payload = new HashMap<>();
+    payload.put("pool", "ABCDEF");
+    payload.put("length", 4);
     mockMvc.perform(
-        post("/codes")
+        post("/{contextPathPart}/codes", contextPathPart)
+            .contextPath(contextPath)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(objectMapper.writeValueAsString(code))
+            .content(objectMapper.writeValueAsString(payload))
     )
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
@@ -96,12 +119,14 @@ class CodeControllerTest {
 
   @Test
   public void postCode_invalid() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
+    Map<String, Object> payload = new HashMap<>();
+    payload.put("pool", "ABCDEF");
+    payload.put("length", 0);
     mockMvc.perform(
-        post("/codes")
+        post("/{contextPathPart}/codes", contextPathPart)
+            .contextPath(contextPath)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(objectMapper.writeValueAsString(code))
+            .content(objectMapper.writeValueAsString(payload))
     )
         .andExpect(status().isBadRequest())
         .andExpect(header().doesNotExist("Location"))
@@ -118,7 +143,7 @@ class CodeControllerTest {
   }
 
   @Test
-  public void listCodes_valid() throws Exception {
+  public void listCodes_all() throws Exception {
     Code code = new Code();
     code.setPool("ABCDEF");
     code.setLength(4);
@@ -131,14 +156,87 @@ class CodeControllerTest {
     code.setPool("ROYGBIV");
     code.setLength(6);
     codeService.add(code);
-    mockMvc.perform(get("/codes"))
+    Guess guess = new Guess();
+    guess.setText(code.getText());
+    guessService.add(code, guess);
+    mockMvc.perform(
+        get("/{contextPathPart}/codes", contextPathPart)
+            .contextPath(contextPath)
+    )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is(3)))
         .andDo(
             document(
-                "code/list-valid",
+                "code/list-all",
                 preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint())
+                preprocessResponse(prettyPrint()),
+                relaxedRequestParameters(getQueryParameters())
+            )
+        );
+  }
+
+  @Test
+  public void listCodes_unsolved() throws Exception {
+    Code code = new Code();
+    code.setPool("ABCDEF");
+    code.setLength(4);
+    codeService.add(code);
+    code = new Code();
+    code.setPool("0123456789");
+    code.setLength(5);
+    codeService.add(code);
+    code = new Code();
+    code.setPool("ROYGBIV");
+    code.setLength(6);
+    codeService.add(code);
+    Guess guess = new Guess();
+    guess.setText(code.getText());
+    guessService.add(code, guess);
+    mockMvc.perform(
+        get("/{contextPathPart}/codes?status=UNSOLVED", contextPathPart)
+            .contextPath(contextPath)
+    )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()", is(2)))
+        .andDo(
+            document(
+                "code/list-unsolved",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                relaxedRequestParameters(getQueryParameters())
+            )
+        );
+  }
+
+  @Test
+  public void listCodes_solved() throws Exception {
+    Code code = new Code();
+    code.setPool("ABCDEF");
+    code.setLength(4);
+    codeService.add(code);
+    code = new Code();
+    code.setPool("0123456789");
+    code.setLength(5);
+    codeService.add(code);
+    code = new Code();
+    code.setPool("ROYGBIV");
+    code.setLength(6);
+    codeService.add(code);
+    Guess guess = new Guess();
+    guess.setText(code.getText());
+    guessService.add(code, guess);
+    mockMvc.perform(
+        get("/{contextPathPart}/codes?status=SOLVED", contextPathPart)
+            .contextPath(contextPath)
+    )
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()", is(1)))
+        .andDo(
+            document(
+                "code/list-solved",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                relaxedRequestParameters(getQueryParameters())
             )
         );
   }
@@ -149,7 +247,10 @@ class CodeControllerTest {
     code.setPool("ABCDEF");
     code.setLength(4);
     codeService.add(code);
-    mockMvc.perform(get("/codes/{id}", code.getId()))
+    mockMvc.perform(
+        get("/{contextPathPart}/codes/{codeId}", contextPathPart, code.getKey())
+            .contextPath(contextPath)
+    )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.pool", is("ABCDEF")))
         .andExpect(jsonPath("$.length", is(4)))
@@ -165,7 +266,10 @@ class CodeControllerTest {
 
   @Test
   public void getCode_invalid() throws Exception {
-    mockMvc.perform(get("/codes/00000000-0000-0000-0000-000000000000"))
+    mockMvc.perform(
+        get("/{contextPathPart}/codes/00000000000000000000000000", contextPathPart)
+            .contextPath(contextPath)
+    )
         .andExpect(status().isNotFound())
         .andDo(document("code/get-invalid"));
   }
@@ -176,7 +280,10 @@ class CodeControllerTest {
     code.setPool("ABCDEF");
     code.setLength(4);
     codeService.add(code);
-    mockMvc.perform(delete("/codes/{id}", code.getId()))
+    mockMvc.perform(
+        delete("/{contextPathPart}/codes/{codeId}", contextPathPart, code.getKey())
+            .contextPath(contextPath)
+    )
         .andExpect(status().isNoContent())
         .andDo(
             document(
@@ -188,15 +295,29 @@ class CodeControllerTest {
 
   @Test
   public void deleteCode_invalid() throws Exception {
-    mockMvc.perform(delete("/codes/00000000-0000-0000-0000-000000000000"))
+    mockMvc.perform(
+        delete("/{contextPathPart}/codes/00000000000000000000000000", contextPathPart)
+            .contextPath(contextPath)
+    )
         .andExpect(status().isNotFound())
         .andDo(document("code/delete-invalid"));
   }
 
   private List<ParameterDescriptor> getPathVariables() {
     return List.of(
-        parameterWithName("id")
-            .description("Unique identifier of code.")
+        parameterWithName("codeId")
+            .description("Unique identifier of code."),
+        parameterWithName("contextPathPart")
+            .ignored()
+    );
+  }
+
+  private List<ParameterDescriptor> getQueryParameters() {
+    return List.of(
+        parameterWithName("status")
+            .description(
+                "Status filter for selecting subset of codes: `ALL` (default), `UNSOLVED`, `SOLVED`.")
+            .optional()
     );
   }
 
@@ -231,7 +352,12 @@ class CodeControllerTest {
             .type(JsonFieldType.NUMBER),
         fieldWithPath("solved")
             .description("Flag indicating whether code has been guessed successfully.")
-            .type(JsonFieldType.BOOLEAN)
+            .type(JsonFieldType.BOOLEAN),
+        fieldWithPath("text")
+            .description(
+                "Text of secret code. This is only included for codes that have been solved.")
+            .type(JsonFieldType.STRING)
+            .optional()
     );
   }
 
@@ -240,12 +366,9 @@ class CodeControllerTest {
     Collections.addAll(
         fields,
         subsectionWithPath("guesses")
-            .description("All guesses submitted for this code, in order of submission.")
-            .type(JsonFieldType.ARRAY),
-        fieldWithPath("text")
-            .description("Actual code text. This is only included for codes that have been solved.")
-            .type(JsonFieldType.STRING)
-            .optional()
+            .description(
+                "All guesses submitted for this code, in order of submission. This property is not included when a `Code` is returned from `POST /codebreaker/codes` or when a `Code[]` is returned from `GET /codebreaker/codes`.")
+            .type(JsonFieldType.ARRAY)
     );
     return fields;
   }

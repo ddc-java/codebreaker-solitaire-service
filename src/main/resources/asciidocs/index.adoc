@@ -6,208 +6,358 @@ Nicholas Bennett;
 :toc: left
 :toclevels: 4
 :sectlinks:
-:operation-http-request-title: Example request
-:operation-http-response-title: Example response
 
-[[overview]]
-= Overview
-
-[[overview_http_verbs]]
+[[codebreaker_overview]]
 == What is _Codebreaker_?
 
-_Codebreaker_ is a simple RESTful service that permits consumers of the service to present and play a deductive logic game, where the goal is to guess a secret code generated (at random) by the service.
+_Codebreaker_ is a simple game of deductive reasoning---a more generalized variant of the board game _Mastermind_ and the earlier pencil-and-paper game _Bulls and Cows_---implemented as a RESTful service that permits client consumers to present the game to a user for play.
 
-In the current implementation,
+[[play_overview]]
+== Rules of play
+
+=== Players
+
+There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-paper and board game variants, players typically alternate playing these roles; in this variant, the service is always the codemaker, and the client is always the codebreaker.
+
+=== Sequence of play
+
+==== Start a new game
+
+A game begins when the codebreaker requests that a new code be generated, with the code length and pool of characters specified in the request.
+
+==== Guessing the code
+
+The objective of the codebreaker in the game is to guess a secret code (generated randomly by the codemaker, within parameters agreed on by both players), in as few guesses as possible.
+
+Each guess consists of a string of characters (which must be of the same length as the code---that is, the length specified when starting the game). When a guess is submitted, the response from the codemaker consists of 2 numbers:
+
+* *Exact matches*
++
+The number of characters in the code that are matched _exactly_ by the characters in the corresponding positions of the guess.
+
+* *Near matches*
++
+The number of characters in the code that are not matched _exactly_ by the guess, but that are matched by characters in the guess in non-corresponding positions.
+
+The codebreaker would then use this information to refine each subsequent guess.
+
+==== End of play
+
+The game ends when the codebreaker successfully guesses the code.
+
+== Endpoints
+
+=== `POST /codebreaker/codes`
+
+==== Overview
+
+Starts a new game by generating a code using the setting specified in the request body.
+
+==== Request
+
+===== Body
 
 |===
-| Verb | Usage
+|Type|Description
 
-| `GET` | Used to retrieve a resource (`Code` or `Guess`), or a collection of resources.
-
-| `POST` | Used to create a new resource.
-
-| `DELETE`
-| Used to delete an existing `Code` resource, along with all of the related guesses.
-|===
-
-[[overview_http_status_codes]]
-== HTTP status codes
-
-Codebreaker adheres as closely as possible to standard HTTP and REST conventions in its use of HTTP status codes.
-
-|===
-| Status code | Usage
-
-| `200 OK`
-| The request completed successfully.
-
-| `201 Created`
-| A new resource has been created successfully. The resource's URI is available from the response's
-`Location` header.
-
-| `204 No Content`
-| The deletion of the specified resource was completed successfully.
-
-| `400 Bad Request`
-| The request was malformed. In most cases, the response body will provide additional details.
-
-| `404 Not Found`
-| The requested resource does not exist.
-
-| `409 Conflict`
-| The requested resource did not exist
+|<<code_post_schema,`Code`>>
+|Code generation settings.
 
 |===
 
-[[overview_errors]]
-== Errors
+==== Responses
 
-Whenever an error response (status code >= 400) is returned, the body will contain a JSON object
-that describes the problem. The error object has the following structure:
+|===
+|Status|Body|Description
 
-include::{snippets}/error-example/response-fields.adoc[]
+|201 Created
+|<<code_get_schema,`Code`>>
+|Code generated successfully.
+|400 Bad Request
+|<<error_schema,`Error`>>
+|Invalid code length or character pool.
 
-For example, a request that attempts to apply a non-existent tag to a note will produce a
-`400 Bad Request` response:
+|===
 
-include::{snippets}/error-example/http-response.adoc[]
+==== Example
 
-[[resources]]
-= Resources
+===== Request
 
-[[resources_index]]
-== Codes
+include::{snippets}/code/post-valid/http-request.adoc[]
 
-Play begins with creation of a new `Code` resource with a `POST` request. After that, the status of a
-[[resources_index_access]]
-=== Accessing the index
+===== Response
 
-A `GET` request is used to access the index
+include::{snippets}/code/post-valid/http-response.adoc[]
 
-operation::index-example[snippets='response-fields,http-response,links']
+=== `GET /codebreaker/codes`
 
+==== Overview
 
+Returns a subset of codes (all, unsolved, or solved), in descending order of creation (i.e. most recently created first).
 
-[[resources_notes]]
-== Notes
+==== Request
 
-The Notes resources is used to create and list notes
+===== Query parameters
 
+include::{snippets}/code/list-all/request-parameters.adoc[]
 
+==== Responses
 
-[[resources_notes_list]]
-=== Listing notes
+|===
+|Status|Body|Description
 
-A `GET` request will list all of the service's notes.
+|200 OK
+|<<code_get_schema,`Code[]`>>
+|Specified subset queried & returned successfully.
+|400 Bad Request
+|<<error_schema,`Error`>>
+|Invalid `status` query parameter value.
 
-operation::notes-list-example[snippets='response-fields,curl-request,http-response,links']
+|===
 
+==== Example 1: All codes
 
+===== Request
 
-[[resources_notes_create]]
-=== Creating a note
+include::{snippets}/code/list-all/http-request.adoc[]
 
-A `POST` request is used to create a note.
+===== Response
 
-operation::notes-create-example[snippets='request-fields,curl-request,http-response']
+include::{snippets}/code/list-all/http-response.adoc[]
 
+==== Example 2: Unsolved codes
 
+===== Request
 
-[[resources_tags]]
-== Tags
+include::{snippets}/code/list-unsolved/http-request.adoc[]
 
-The Tags resource is used to create and list tags.
+===== Response
 
+include::{snippets}/code/list-unsolved/http-response.adoc[]
 
+=== `GET /codebreaker/codes/{codeId}`
 
-[[resources_tags_list]]
-=== Listing tags
+==== Overview
 
-A `GET` request will list all of the service's tags.
+Returns the code with the unique identifier `codeId`.
 
-operation::tags-list-example[snippets='response-fields,curl-request,http-response,links']
+==== Request
 
+===== Path parameters
 
+include::{snippets}/code/get-valid/path-parameters.adoc[]
 
-[[resources_tags_create]]
-=== Creating a tag
+==== Responses
 
-A `POST` request is used to create a note
+|===
+|Status|Body|Description
 
-operation::tags-create-example[snippets='request-fields,curl-request,http-response']
+|200 OK
+|<<code_get_schema,`Code`>>
+|Specified code returned.
+|404 Not Found
+|<<error_schema,`Error`>>
+|No code exists with an `id` equal to the specified `codeId`.
 
+|===
 
+==== Example
 
-[[resources_note]]
-== Note
+===== Request
 
-The Note resource is used to retrieve, update, and delete individual notes
+include::{snippets}/code/get-valid/http-request.adoc[]
 
+===== Response
 
+include::{snippets}/code/get-valid/http-response.adoc[]
 
-[[resources_note_links]]
-=== Links
+=== `DELETE /codebreaker/codes/{codeId}`
 
-include::{snippets}/note-get-example/links.adoc[]
+==== Overview
 
+Deletes the code (and all related guesses) with the unique identifier `codeId`.
 
+==== Request
 
-[[resources_note_retrieve]]
-=== Retrieve a note
+===== Path parameters
 
-A `GET` request will retrieve the details of a note
+include::{snippets}/code/get-valid/path-parameters.adoc[]
 
-operation::note-get-example[snippets='response-fields,curl-request,http-response']
+==== Responses
 
+|===
+|Status|Body|Description
 
+|204 No Content
+|_(none)_
+|Specified code deleted.
+|404 Not Found
+|<<error_schema,`Error`>>
+|No code exists with an `id` equal to the specified `codeId`.
 
-[[resources_note_update]]
-=== Update a note
+|===
 
-A `PATCH` request is used to update a note
+==== Example
 
-==== Request structure
+===== Request
 
-include::{snippets}/note-update-example/request-fields.adoc[]
+include::{snippets}/code/delete-valid/http-request.adoc[]
 
-To leave an attribute of a note unchanged, any of the above may be omitted from the request.
+===== Response
 
-==== Example request
+include::{snippets}/code/delete-valid/http-response.adoc[]
 
-include::{snippets}/note-update-example/curl-request.adoc[]
+=== `POST /codebreaker/codes/{codeId}/guesses`
 
-==== Example response
+==== Overview
 
-include::{snippets}/note-update-example/http-response.adoc[]
+Submits a guess against the code specified by `codeId`.
 
+==== Request
 
+===== Path parameters
 
-[[resources_tag]]
-== Tag
+include::{snippets}/guess/post-valid/path-parameters.adoc[]
 
-The Tag resource is used to retrieve, update, and delete individual tags
+===== Body
 
+|===
+|Type|Description
 
+|<<guess_post_schema,`Guess`>>
+|Text of guess.
 
-[[resources_tag_links]]
-=== Links
+|===
 
-include::{snippets}/tag-get-example/links.adoc[]
+==== Responses
 
+|===
+|Status|Body|Description
 
+|201 OK
+|<<guess_get_schema,`Guess`>>
+|Guess submitted successfully.
+|400 Bad Request
+|<<error_schema,`Error`>>
+|Length of guess doesn't match code length.
+|404 Not Found
+|<<error_schema,`Error`>>
+|No code exists with an `id` equal to the specified `codeId`.
 
-[[resources_tag_retrieve]]
-=== Retrieve a tag
+|===
 
-A `GET` request will retrieve the details of a tag
+==== Example
 
-operation::tag-get-example[snippets='response-fields,curl-request,http-response']
+===== Request
 
+include::{snippets}/guess/post-valid/http-request.adoc[]
 
+===== Response
 
-[[resources_tag_update]]
-=== Update a tag
+include::{snippets}/guess/post-valid/http-response.adoc[]
 
-A `PATCH` request is used to update a tag
+=== `GET /codebreaker/codes/{codeId}/guesses`
 
-operation::tag-update-example[snippets='request-fields,curl-request,http-response']
+==== Overview
+
+Retrieves all guesses submitted against the code specified by `codeId`.
+
+==== Request
+
+===== Path parameters
+
+include::{snippets}/guess/list-valid/path-parameters.adoc[]
+
+==== Responses
+
+|===
+|Status|Body|Description
+
+|200 OK
+|<<guess_get_schema,`Guess[]`>>
+|Guesses associated with specified code queried & returned successfully.
+|404 Not Found
+|<<error_schema,`Error`>>
+|No code exists with an `id` equal to the specified `codeId`.
+
+|===
+
+==== Example
+
+===== Request
+
+include::{snippets}/guess/list-valid/http-request.adoc[]
+
+===== Response
+
+include::{snippets}/guess/list-valid/http-response.adoc[]
+
+=== `GET /codebreaker/codes/{codeId}/guesses/{guessId}`
+
+==== Overview
+
+Returns the guess with the unique identifier `guessId` submitted against the code identified by `codeId`.
+
+==== Request
+
+===== Path parameters
+
+include::{snippets}/guess/get-valid/path-parameters.adoc[]
+
+==== Responses
+
+|===
+|Status|Body|Description
+
+|200 OK
+|<<guess_get_schema,`Guess`>>
+|Specified guess returned.
+|404 Not Found
+|<<error_schema,`Error`>>
+|No code exists with an `id` equal to the specified `codeId`, no guess identified by `guessId` exists, or guess identified by `guessId` is not associated with code identified by `codeId`.
+
+|===
+
+==== Example
+
+===== Request
+
+include::{snippets}/guess/get-valid/http-request.adoc[]
+
+===== Response
+
+include::{snippets}/guess/get-valid/http-response.adoc[]
+
+== Schemas
+
+[[code_schema]]
+=== `Code`
+
+[[code_post_schema]]
+==== `POST` request body
+
+include::{snippets}/code/post-valid/request-fields.adoc[]
+
+[[code_get_schema]]
+==== `GET` & `POST` response body
+
+include::{snippets}/code/get-valid/response-fields.adoc[]
+
+[[guess_schema]]
+=== `Guess`
+
+[[guess_post_schema]]
+==== `POST` request body
+
+include::{snippets}/guess/post-valid/request-fields.adoc[]
+
+[[guess_get_schema]]
+==== `GET` & `POST` response body
+
+include::{snippets}/guess/get-valid/response-fields.adoc[]
+
+[[error_schema]]
+=== `Error`
+
+include::{snippets}/code/post-invalid/response-fields.adoc[]
+
