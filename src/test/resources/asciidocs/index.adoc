@@ -25,6 +25,8 @@ There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-
 
 A game begins when the codebreaker requests that a new code be generated, with the code length and pool of characters specified in the request.
 
+See <<post_code_endpoint,`POST /codebreaker/codes`>> for details on requesting the generation of new code (thus starting a new game) from this service.
+
 ==== Guessing the code
 
 The objective of the codebreaker in the game is to guess a secret code (generated randomly by the codemaker, within parameters agreed on by both players), in as few guesses as possible.
@@ -41,12 +43,15 @@ The number of characters in the code that are not matched _exactly_ by the guess
 
 The codebreaker would then use this information to refine each subsequent guess.
 
+See <<post_guess_endpoint,`POST /codebreaker/codes/{codeId}/guesses`>> for details on submitting a guess to this service, and the information returned by the service.
+
 ==== End of play
 
 The game ends when the codebreaker successfully guesses the code.
 
 == Endpoints
 
+[[post_code_endpoint]]
 === `POST /codebreaker/codes`
 
 ==== Overview
@@ -93,7 +98,7 @@ include::{snippets}/code/post-valid/http-response.adoc[]
 
 ==== Overview
 
-Returns a subset of codes (all, unsolved, or solved), in descending order of creation (i.e. most recently created first).
+Returns a subset of codes (all, unsolved, or solved), in descending order of creation date (i.e. most recently created first).
 
 ==== Request
 
@@ -207,6 +212,7 @@ include::{snippets}/code/delete-valid/http-request.adoc[]
 
 include::{snippets}/code/delete-valid/http-response.adoc[]
 
+[[post_guess_endpoint]]
 === `POST /codebreaker/codes/{codeId}/guesses`
 
 ==== Overview

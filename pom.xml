@@ -83,8 +83,8 @@
               <attributes>
                 <snippets>${project.build.directory}/generated-snippets</snippets>
               </attributes>
-              <sourceDirectory>src/main/resources/asciidocs</sourceDirectory>
-              <outputDirectory>src/main/resources/static</outputDirectory>
+              <sourceDirectory>src/test/resources/asciidocs</sourceDirectory>
+              <outputDirectory>${project.build.directory}/classes/static</outputDirectory>
             </configuration>
           </execution>
         </executions>
