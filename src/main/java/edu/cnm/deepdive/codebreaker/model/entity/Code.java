@@ -6,11 +6,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
 import edu.cnm.deepdive.codebreaker.configuration.Beans;
 import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
-import edu.cnm.deepdive.codebreaker.view.CodeView;
-import edu.cnm.deepdive.codebreaker.view.GuessView;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +33,6 @@ import javax.validation.constraints.NotEmpty;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
 
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
@@ -44,8 +40,7 @@ import org.springframework.stereotype.Component;
     indexes = @Index(columnList = "created")
 )
 @JsonInclude(Include.NON_NULL)
-@JsonView({CodeView.Flat.class, GuessView.Hierarchical.class})
-@JsonPropertyOrder({"id", "created", "pool", "length", "guessCount", "solved", "text", "guesses"})
+@JsonPropertyOrder({"id", "created", "pool", "length", "guessCount", "solved", "text"})
 public class Code {
 
   @NonNull
@@ -81,7 +76,7 @@ public class Code {
   @OneToMany(mappedBy = "code", fetch = FetchType.EAGER, cascade = CascadeType.ALL,
       orphanRemoval = true)
   @OrderBy("created ASC")
-  @JsonView(CodeView.Hierarchical.class)
+  @JsonIgnore
   private final List<Guess> guesses = new ArrayList<>();
 
   @Transient

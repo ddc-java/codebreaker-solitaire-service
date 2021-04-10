@@ -1,12 +1,9 @@
 package edu.cnm.deepdive.codebreaker.controller;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
-import edu.cnm.deepdive.codebreaker.view.GuessView;
-import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -33,7 +30,6 @@ public class GuessController {
   }
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  @JsonView(GuessView.Flat.class)
   public Iterable<Guess> list(@PathVariable String codeId) {
     return codeService
         .get(codeId)
@@ -43,7 +39,6 @@ public class GuessController {
 
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  @JsonView(GuessView.Flat.class)
   public ResponseEntity<Guess> post(@PathVariable String codeId, @Valid @RequestBody Guess guess) {
     return codeService
         .get(codeId)
@@ -58,7 +53,6 @@ public class GuessController {
 
   @GetMapping(value = ValidationPatterns.ID_PATH_PARAMETER_PATTERN,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @JsonView(GuessView.Flat.class)
   public Guess get(@PathVariable String codeId, @PathVariable String id) {
     return codeService
         .get(codeId)

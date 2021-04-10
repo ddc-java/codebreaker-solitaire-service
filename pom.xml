@@ -13,7 +13,7 @@
 
   <groupId>edu.cnm.deepdive</groupId>
   <artifactId>codebreaker</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>codebreaker</name>
   <description>Code generator &amp; game service</description>
 
@@ -77,7 +77,7 @@
               <goal>process-asciidoc</goal>
             </goals>
             <configuration>
-              <sourceDocumentName>index.adoc</sourceDocumentName>
+              <sourceDocumentName>api.adoc</sourceDocumentName>
               <backend>html</backend>
               <doctype>book</doctype>
               <attributes>

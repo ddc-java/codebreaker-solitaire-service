@@ -259,7 +259,7 @@ class CodeControllerTest {
                 "code/get-valid",
                 preprocessResponse(prettyPrint()),
                 pathParameters(getPathVariables()),
-                relaxedResponseFields(getHierarchicalFields())
+                relaxedResponseFields(getFlatFields())
             )
         );
   }
@@ -359,18 +359,6 @@ class CodeControllerTest {
             .type(JsonFieldType.STRING)
             .optional()
     );
-  }
-
-  private List<FieldDescriptor> getHierarchicalFields() {
-    List<FieldDescriptor> fields = new LinkedList<>(getFlatFields());
-    Collections.addAll(
-        fields,
-        subsectionWithPath("guesses")
-            .description(
-                "All guesses submitted for this code, in order of submission. This property is not included when a `Code` is returned from `POST /codebreaker/codes` or when a `Code[]` is returned from `GET /codebreaker/codes`.")
-            .type(JsonFieldType.ARRAY)
-    );
-    return fields;
   }
 
 }

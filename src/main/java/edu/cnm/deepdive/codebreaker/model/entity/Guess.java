@@ -6,11 +6,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
 import edu.cnm.deepdive.codebreaker.configuration.Beans;
 import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
-import edu.cnm.deepdive.codebreaker.view.CodeView;
-import edu.cnm.deepdive.codebreaker.view.GuessView;
 import java.util.Date;
 import java.util.UUID;
 import javax.persistence.Column;
@@ -38,7 +35,6 @@ import org.springframework.lang.NonNull;
     indexes = @Index(columnList = "created")
 )
 @JsonInclude(Include.NON_NULL)
-@JsonView({GuessView.Flat.class, CodeView.Hierarchical.class})
 @JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution", "code"})
 public class Guess {
 
@@ -59,7 +55,7 @@ public class Guess {
   @NonNull
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   @JoinColumn(name = "code_id", nullable = false, updatable = false)
-  @JsonView(GuessView.Hierarchical.class)
+  @JsonIgnore
   private Code code;
 
   @NonNull
