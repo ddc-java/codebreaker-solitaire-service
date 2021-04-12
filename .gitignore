@@ -22,6 +22,24 @@
 /bin/
 
 
+### NetBeans ###
+
+# - metadata
+/nbproject/
+/.nb-gradle/
+
+# - build output
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+
+
+### VS Code ###
+
+# - metadata
+.vscode/
+
 ### Gradle ###
 
 # - temporary files
@@ -35,6 +53,9 @@ local.properties
 
 
 ### Maven ###
+
+# - developer info
+HELP.md
 
 # - build output
 /target/
