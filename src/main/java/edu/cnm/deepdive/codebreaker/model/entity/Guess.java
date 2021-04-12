@@ -63,9 +63,9 @@ public class Guess {
   @NotEmpty
   private String text;
 
-  public int exactMatches;
+  private int exactMatches;
 
-  public int nearMatches;
+  private int nearMatches;
 
   @Transient
   @JsonProperty(value = "id", access = Access.READ_ONLY)
