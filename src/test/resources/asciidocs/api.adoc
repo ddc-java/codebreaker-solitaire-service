@@ -1,6 +1,7 @@
 = Codebreaker API Guide
 Nicholas Bennett;
 :doctype: book
+:favicon: img/deep-dive-all-cohorts.png
 :icons: font
 :source-highlighter: highlightjs
 :toc: left

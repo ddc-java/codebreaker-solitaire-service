@@ -55,6 +55,7 @@ public class Code {
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false, updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
   private Date created;
 
   @NonNull

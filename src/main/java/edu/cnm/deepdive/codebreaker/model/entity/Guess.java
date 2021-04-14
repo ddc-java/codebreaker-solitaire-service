@@ -50,6 +50,7 @@ public class Guess {
   @CreationTimestamp
   @Temporal(TemporalType.TIMESTAMP)
   @Column(nullable = false, updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
   private Date created;
 
   @NonNull
@@ -63,8 +64,12 @@ public class Guess {
   @NotEmpty
   private String text;
 
+  @Column(updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
   private int exactMatches;
 
+  @Column(updatable = false)
+  @JsonProperty(access = Access.READ_ONLY)
   private int nearMatches;
 
   @Transient
