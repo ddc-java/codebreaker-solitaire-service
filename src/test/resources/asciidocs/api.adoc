@@ -1,6 +1,6 @@
 = Codebreaker API Guide
-Nicholas Bennett <nick@nickbenn.com>
-{projectVersion}, {projectTimestamp}
+:author: Nicholas Bennett
+:email: nick@nickbenn.com
 :doctype: book
 :favicon: img/deep-dive-all-cohorts.png
 :icons: font

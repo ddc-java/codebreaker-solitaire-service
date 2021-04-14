@@ -56,8 +56,15 @@ class CodeControllerTest {
   private final CodeService codeService;
   private final GuessService guessService;
 
+  @Value("${rest-docs.scheme}")
+  private String docScheme;
+
+  @Value("${rest-docs.host}")
+  private String docHost;
+
   @Value("${server.servlet.context-path}")
   private String contextPath;
+
   private String contextPathPart;
   private MockMvc mockMvc;
 
@@ -78,8 +85,8 @@ class CodeControllerTest {
         .apply(
             documentationConfiguration(restDocumentation)
                 .uris()
-                .withScheme("https")
-                .withHost("ddc.nickbenn.com")
+                .withScheme(docScheme)
+                .withHost(docHost)
                 .withPort(443)
         )
         .build();

@@ -13,7 +13,7 @@
 
   <groupId>edu.cnm.deepdive</groupId>
   <artifactId>codebreaker</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <name>codebreaker</name>
   <description>Code generator &amp; game service</description>
 
@@ -83,8 +83,6 @@
               <doctype>book</doctype>
               <attributes>
                 <snippets>${project.build.directory}/generated-snippets</snippets>
-                <projectVersion>${project.version}</projectVersion>
-                <projectTimestamp>${maven.build.timestamp}</projectTimestamp>
               </attributes>
               <sourceDirectory>src/test/resources/asciidocs</sourceDirectory>
               <outputDirectory>${project.build.directory}/classes/static</outputDirectory>

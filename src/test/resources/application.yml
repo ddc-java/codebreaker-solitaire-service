@@ -11,3 +11,6 @@ server:
   forward-headers-strategy: native
   port: 8081
 
+rest-docs:
+  host: ddc-java.services
+  scheme: https
