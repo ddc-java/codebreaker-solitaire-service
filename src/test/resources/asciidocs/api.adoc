@@ -1,6 +1,6 @@
 = Codebreaker API Guide
-:author: Nicholas Bennett
-:email: nick@nickbenn.com
+Nicholas Bennett <nick@nickbenn.com>
+{projectVersion}, {projectTimestamp}
 :doctype: book
 :favicon: img/deep-dive-all-cohorts.png
 :icons: font
@@ -12,14 +12,14 @@
 [[codebreaker_overview]]
 == What is _Codebreaker_?
 
-_Codebreaker_ is a simple game of deductive reasoning---a more generalized variant of the board game _Mastermind_ and the earlier pencil-and-paper game _Bulls and Cows_---implemented as a RESTful service that permits client consumers to present the game to a user for play.
+_Codebreaker_ is a simple game of deductive reasoning---a more generalized variant of the board game _Mastermind_ and the earlier pencil-and-paper game _Bulls and Cows_---implemented as a RESTful service that permits clients (consumers of the service) to present the game to users for play.
 
 [[play_overview]]
 == Rules of play
 
 === Players
 
-There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-paper and board game variants, players typically alternate playing these roles; in this variant, the service is always the codemaker, and the client is always the codebreaker.
+There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-paper and board game variants, players typically alternate playing these roles; in this variant, the service is always the codemaker, and the client is always the codebreaker. Thus, in its current implementation, this is a solitaire game: a client application requests generation of a code from the service, and then submits the user's guesses to the service, one at a time, displaying the response to the user.
 
 === Sequence of play
 
@@ -33,7 +33,7 @@ See <<post_code_endpoint,`POST /codebreaker/codes`>> for details on requesting t
 
 The objective of the codebreaker in the game is to guess a secret code (generated randomly by the codemaker, within parameters agreed on by both players), in as few guesses as possible.
 
-Each guess consists of a string of characters (which must be of the same length as the code---that is, the length specified when starting the game). When a guess is submitted, the response from the codemaker consists of 2 numbers:
+Each guess consists of a string of characters (which must be of the same length as the code---that is, the length specified when starting the game). When a guess is submitted, the response from the codemaker (primarily) consists of 2 numbers:
 
 * *Exact matches*
 +

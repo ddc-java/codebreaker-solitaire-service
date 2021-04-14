@@ -19,6 +19,7 @@
 
   <properties>
     <java.version>11</java.version>
+    <maven.build.timestamp.format>yyyy-MM-dd HH:mm z</maven.build.timestamp.format>
   </properties>
 
   <dependencies>
@@ -82,6 +83,8 @@
               <doctype>book</doctype>
               <attributes>
                 <snippets>${project.build.directory}/generated-snippets</snippets>
+                <projectVersion>${project.version}</projectVersion>
+                <projectTimestamp>${maven.build.timestamp}</projectTimestamp>
               </attributes>
               <sourceDirectory>src/test/resources/asciidocs</sourceDirectory>
               <outputDirectory>${project.build.directory}/classes/static</outputDirectory>
