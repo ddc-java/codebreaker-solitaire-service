@@ -29,6 +29,10 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.lang.NonNull;
 
+/**
+ * Encapsulates a single guess, submitted by a codebreaker, against a {@link Code}.
+ * Annotations are used to specify the view&mdash;the JSON representation of the guess.
+ */
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
 @Table(
@@ -76,62 +80,126 @@ public class Guess {
   @JsonProperty(value = "id", access = Access.READ_ONLY)
   private String key;
 
+  /**
+   * Returns the unique identifier of this guess.
+   * @return
+   */
   @NonNull
   public UUID getId() {
     return id;
   }
 
+  /**
+   * Returns the date this guess was first submitted and persisted to the database.
+   * @return
+   */
   @NonNull
   public Date getCreated() {
     return created;
   }
 
+  /**
+   * Returns the {@link Code} instance against which this guess was submitted.
+   * @return
+   */
   @NonNull
   public Code getCode() {
     return code;
   }
 
+  /**
+   * Sets the {@link Code} instance against which this guess was submitted.
+   * @param code
+   */
   public void setCode(@NonNull Code code) {
     this.code = code;
   }
 
+  /**
+   * Returns the text of this guess.
+   * @return
+   */
   @NonNull
   public String getText() {
     return text;
   }
 
+  /**
+   * Sets the text of this guess.
+   * @param text
+   */
   public void setText(@NonNull String text) {
     this.text = text;
   }
 
+  /**
+   * Returns the number of characters in this guess which are found in the same positions in the
+   * code.
+   * @return
+   */
   public int getExactMatches() {
     return exactMatches;
   }
 
+  /**
+   * Sets the number of characters in this guess which are found in the same positions in the code.
+   * @param exactMatches
+   */
   public void setExactMatches(int exactMatches) {
     this.exactMatches = exactMatches;
   }
 
+  /**
+   * Returns the number of characters in this guess which are found in different positions in the
+   * code (not counting those characters in the code that are matched exactly by other occurrences
+   * of the same character in the guess).
+   * @return
+   */
   public int getNearMatches() {
     return nearMatches;
   }
 
+  /**
+   * Sets the number of characters in this guess which are found in different positions in the code
+   * (not counting those characters in the code that are matched exactly by other occurrences of the
+   * same character in the guess).
+   * @param nearMatches
+   */
   public void setNearMatches(int nearMatches) {
     this.nearMatches = nearMatches;
   }
 
+  /**
+   * Returns a {@link String}-valued representation of the unique identifier of this guess.
+   * @return
+   */
   public String getKey() {
     return key;
   }
 
+  /**
+   * Sets the (transient) {@link String}-valued representation of the unique identifier of this
+   * guess.
+   * @param key
+   */
   public void setKey(String key) {
     this.key = key;
   }
 
+  /**
+   * Returns a {@code boolean} flag indicating whether this guess matches the code exactly.
+   * @return
+   */
   public boolean isSolution() {
     return exactMatches == code.getLength();
   }
 
+  /**
+   * Returns an {@code int[]} of Unicode code points of this guess. This is a convenience method,
+   * intended to make checking the guess against the code easier.
+   *
+   * @return Unicode code points of this guess.
+   */
   @JsonIgnore
   public int[] codePoints() {
     return text
