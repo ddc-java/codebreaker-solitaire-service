@@ -28,6 +28,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
@@ -49,7 +50,9 @@ import org.springframework.lang.NonNull;
 @JsonPropertyOrder({"id", "created", "pool", "length", "guessCount", "solved", "text"})
 public class Code {
 
-  private static final int MAX_CODE_LENGTH = 20;
+  /** Maximum allowed length of a generated code (and any guess submitted against the code). */
+  public static final int MAX_CODE_LENGTH = 20;
+
   private static final int MAX_POOL_LENGTH = 255;
 
   @NonNull
@@ -78,8 +81,8 @@ public class Code {
   @JsonIgnore
   private String text;
 
-  @Column(updatable = false)
-  @Positive
+  @Column(nullable = false, updatable = false)
+  @Min(1)
   @Max(MAX_CODE_LENGTH)
   private int length;
 

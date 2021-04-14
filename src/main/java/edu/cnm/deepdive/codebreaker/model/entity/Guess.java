@@ -25,6 +25,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.lang.NonNull;
@@ -64,15 +65,16 @@ public class Guess {
   private Code code;
 
   @NonNull
-  @Column(name = "guess_text", nullable = false, updatable = false)
+  @Column(length = Code.MAX_CODE_LENGTH, name = "guess_text", nullable = false, updatable = false)
   @NotEmpty
+  @Size(max = Code.MAX_CODE_LENGTH)
   private String text;
 
-  @Column(updatable = false)
+  @Column(nullable = false, updatable = false)
   @JsonProperty(access = Access.READ_ONLY)
   private int exactMatches;
 
-  @Column(updatable = false)
+  @Column(nullable = false, updatable = false)
   @JsonProperty(access = Access.READ_ONLY)
   private int nearMatches;
 
