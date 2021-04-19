@@ -13,25 +13,16 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package edu.cnm.deepdive.codebreaker;
+package edu.cnm.deepdive.codebreaker.controller;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+class PathComponents {
 
-/**
- * Starts a simple RESTful service providing a generalized form of the game <a
- * href="https://en.wikipedia.org/wiki/Bulls_and_Cows">Bulls and Cows</a>.
- */
-@SpringBootApplication
-public class CodebreakerApplication {
-
-  /**
-   * Initializes the {@link SpringApplication} framework.
-   *
-   * @param args Command-line arguments.
-   */
-  public static void main(String[] args) {
-    SpringApplication.run(CodebreakerApplication.class, args);
-  }
+  static final String ID_PATTERN = "[\\da-zA-Z]+";
+  static final String CODES_COMPONENT = "/codes";
+  static final String CODES_PATH = CODES_COMPONENT;
+  static final String CODE_ID_COMPONENT = "/{codeId:" + ID_PATTERN +  "}";
+  static final String GUESSES_COMPONENT = "/guesses";
+  static final String GUESSES_PATH = CODES_COMPONENT + CODE_ID_COMPONENT + GUESSES_COMPONENT;
+  static final String GUESS_ID_COMPONENT = "/{guessId:" + ID_PATTERN +  "}";
 
 }

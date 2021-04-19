@@ -12,7 +12,6 @@ import static org.springframework.restdocs.operation.preprocess.Preprocessors.pr
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedRequestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.subsectionWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.relaxedRequestParameters;
@@ -25,9 +24,8 @@ import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
-import java.util.Collections;
+import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;

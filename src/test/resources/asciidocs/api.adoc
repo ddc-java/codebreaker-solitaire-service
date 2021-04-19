@@ -1,6 +1,6 @@
 = Codebreaker API Guide
-:author: Nicholas Bennett
-:email: nick@nickbenn.com
+Nicholas Bennett <nick@nickbenn.com>
+v{projectVersion}
 :doctype: book
 :favicon: img/deep-dive-all-cohorts.png
 :icons: font
@@ -33,7 +33,7 @@ See <<post_code_endpoint,`POST /codebreaker/codes`>> for details on requesting t
 
 The objective of the codebreaker in the game is to guess a secret code (generated randomly by the codemaker, within parameters agreed on by both players), in as few guesses as possible.
 
-Each guess consists of a string of characters (which must be of the same length as the code---that is, the length specified when starting the game). When a guess is submitted, the response from the codemaker (primarily) consists of 2 numbers:
+Each guess consists of a string of characters (which must be of the same length as the code---that is, the length specified when starting the game). When a guess is submitted, the response from the codemaker consists (primarily) of 2 numbers:
 
 * *Exact matches*
 +

@@ -22,6 +22,7 @@ import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
+import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -98,9 +99,10 @@ class GuessControllerTest {
   public void postGuess_valid() throws Exception {
     Code code = new Code();
     code.setPool("ABCDEF");
-    code.setLength(4);
+    code.setLength(6);
+    code.setText("ABACAB");
     codeService.add(code);
-    Map<String, String> guessSkeleton = Map.of("text", "AAAA");
+    Map<String, String> guessSkeleton = Map.of("text", "AABBCC");
     mockMvc.perform(
         post("/{contextPathPart}/codes/{codeId}/guesses", contextPathPart, code.getKey())
             .contextPath(contextPath)
@@ -109,6 +111,8 @@ class GuessControllerTest {
     )
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
+        .andExpect(jsonPath("$.exactMatches", is(1)))
+        .andExpect(jsonPath("$.nearMatches", is(4)))
         .andDo(
             document(
                 "guess/post-valid",

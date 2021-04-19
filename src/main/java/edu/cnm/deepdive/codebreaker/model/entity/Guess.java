@@ -1,3 +1,18 @@
+/*
+ *  Copyright 2021 CNM Ingenuity, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package edu.cnm.deepdive.codebreaker.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -31,8 +46,8 @@ import org.hibernate.annotations.GenericGenerator;
 import org.springframework.lang.NonNull;
 
 /**
- * Encapsulates a single guess, submitted by a codebreaker, against a {@link Code}.
- * Annotations are used to specify the view&mdash;the JSON representation of the guess.
+ * Encapsulates a single guess, submitted by a codebreaker, against a {@link Code}. Annotations are
+ * used to specify the view&mdash;the JSON representation of the guess.
  */
 @SuppressWarnings("JpaDataSourceORMInspection")
 @Entity
@@ -40,7 +55,7 @@ import org.springframework.lang.NonNull;
     indexes = @Index(columnList = "created")
 )
 @JsonInclude(Include.NON_NULL)
-@JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution", "code"})
+@JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution"})
 public class Guess {
 
   @NonNull
@@ -84,6 +99,7 @@ public class Guess {
 
   /**
    * Returns the unique identifier of this guess.
+   *
    * @return
    */
   @NonNull
@@ -93,6 +109,7 @@ public class Guess {
 
   /**
    * Returns the date this guess was first submitted and persisted to the database.
+   *
    * @return
    */
   @NonNull
@@ -102,6 +119,7 @@ public class Guess {
 
   /**
    * Returns the {@link Code} instance against which this guess was submitted.
+   *
    * @return
    */
   @NonNull
@@ -111,6 +129,7 @@ public class Guess {
 
   /**
    * Sets the {@link Code} instance against which this guess was submitted.
+   *
    * @param code
    */
   public void setCode(@NonNull Code code) {
@@ -119,6 +138,7 @@ public class Guess {
 
   /**
    * Returns the text of this guess.
+   *
    * @return
    */
   @NonNull
@@ -128,6 +148,7 @@ public class Guess {
 
   /**
    * Sets the text of this guess.
+   *
    * @param text
    */
   public void setText(@NonNull String text) {
@@ -137,6 +158,7 @@ public class Guess {
   /**
    * Returns the number of characters in this guess which are found in the same positions in the
    * code.
+   *
    * @return
    */
   public int getExactMatches() {
@@ -145,6 +167,7 @@ public class Guess {
 
   /**
    * Sets the number of characters in this guess which are found in the same positions in the code.
+   *
    * @param exactMatches
    */
   public void setExactMatches(int exactMatches) {
@@ -155,6 +178,7 @@ public class Guess {
    * Returns the number of characters in this guess which are found in different positions in the
    * code (not counting those characters in the code that are matched exactly by other occurrences
    * of the same character in the guess).
+   *
    * @return
    */
   public int getNearMatches() {
@@ -165,6 +189,7 @@ public class Guess {
    * Sets the number of characters in this guess which are found in different positions in the code
    * (not counting those characters in the code that are matched exactly by other occurrences of the
    * same character in the guess).
+   *
    * @param nearMatches
    */
   public void setNearMatches(int nearMatches) {
@@ -173,6 +198,7 @@ public class Guess {
 
   /**
    * Returns a {@link String}-valued representation of the unique identifier of this guess.
+   *
    * @return
    */
   public String getKey() {
@@ -182,6 +208,7 @@ public class Guess {
   /**
    * Sets the (transient) {@link String}-valued representation of the unique identifier of this
    * guess.
+   *
    * @param key
    */
   public void setKey(String key) {
@@ -190,23 +217,11 @@ public class Guess {
 
   /**
    * Returns a {@code boolean} flag indicating whether this guess matches the code exactly.
+   *
    * @return
    */
   public boolean isSolution() {
     return exactMatches == code.getLength();
-  }
-
-  /**
-   * Returns an {@code int[]} of Unicode code points of this guess. This is a convenience method,
-   * intended to make checking the guess against the code easier.
-   *
-   * @return Unicode code points of this guess.
-   */
-  @JsonIgnore
-  public int[] codePoints() {
-    return text
-        .codePoints()
-        .toArray();
   }
 
   @PostLoad
