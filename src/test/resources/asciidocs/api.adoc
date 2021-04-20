@@ -1,4 +1,4 @@
-= Codebreaker API Guide
+= Codebreaker Solitaire API Guide
 Nicholas Bennett <nick@nickbenn.com>
 v{projectVersion}
 :doctype: book
