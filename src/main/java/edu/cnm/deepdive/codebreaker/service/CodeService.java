@@ -20,6 +20,7 @@ import edu.cnm.deepdive.codebreaker.model.dao.CodeRepository;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -142,10 +143,10 @@ public class CodeService {
    * @throws InvalidPropertyException If {@code statusString} does not match one of {@link
    *                                  Status#values()}.
    */
-  public Stream<Code> list(@NonNull String statusString) throws InvalidPropertyException {
+  public Iterable<Code> list(@NonNull String statusString) throws InvalidPropertyException {
     try {
       Status status = Status.valueOf(statusString.toUpperCase());
-      Stream<Code> selection;
+      Iterable<Code> selection;
       switch (status) {
         case ALL:
           selection = codeRepository.getAllByOrderByCreatedDesc();
@@ -157,7 +158,7 @@ public class CodeService {
           selection = codeRepository.getAllSolvedOrderByCreatedDesc();
           break;
         default:
-          selection = Stream.of();
+          selection = List.of();
           break;
       }
       return selection;

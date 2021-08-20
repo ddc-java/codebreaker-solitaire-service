@@ -72,11 +72,9 @@ public class CodeController {
    *                                  Status}.
    */
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public Stream<Code> list(@RequestParam(required = false, defaultValue = "ALL") String status)
+  public Iterable<Code> list(@RequestParam(required = false, defaultValue = "ALL") String status)
       throws InvalidPropertyException {
-    try (Stream<Code> codes = codeService.list(status)) {
-      return codes;
-    }
+    return codeService.list(status);
   }
 
   /**
@@ -93,8 +91,7 @@ public class CodeController {
    */
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Code> post(@Valid @RequestBody Code code)
-      throws MethodArgumentNotValidException, InvalidPropertyException {
+  public ResponseEntity<Code> post(@Valid @RequestBody Code code) throws InvalidPropertyException {
     code = codeService.add(code);
     URI location = WebMvcLinkBuilder
         .linkTo(WebMvcLinkBuilder

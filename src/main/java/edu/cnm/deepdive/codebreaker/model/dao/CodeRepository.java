@@ -34,20 +34,20 @@ public interface CodeRepository extends JpaRepository<Code, UUID> {
    * Queries and returns all {@link Code} instances, in descending order by creation date.
    * @return
    */
-  Stream<Code> getAllByOrderByCreatedDesc();
+  Iterable<Code> getAllByOrderByCreatedDesc();
 
   /**
    * Queries and returns all solved {@link Code} instances, in descending order by creation date.
    * @return
    */
   @Query("SELECT DISTINCT c FROM Guess AS g JOIN g.code c WHERE c.length = g.exactMatches ORDER BY c.created DESC")
-  Stream<Code> getAllSolvedOrderByCreatedDesc();
+  Iterable<Code> getAllSolvedOrderByCreatedDesc();
 
   /**
    * Queries and returns all unsolved {@link Code} instances, in descending order by creation date.
    * @return
    */
   @Query("SELECT c FROM Code AS c WHERE NOT EXISTS (SELECT g FROM Guess AS g WHERE g.code = c AND g.exactMatches = c.length) ORDER BY c.created DESC")
-  Stream<Code> getAllUnsolvedOrderByCreatedDesc();
+  Iterable<Code> getAllUnsolvedOrderByCreatedDesc();
 
 }
