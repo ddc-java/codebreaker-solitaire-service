@@ -71,6 +71,8 @@ public class Code {
 
   private static final int MAX_POOL_LENGTH = 255;
 
+  private static UUIDStringifier stringifier;
+
   @NonNull
   @Id
   @GeneratedValue(generator = "uuid2")
@@ -253,7 +255,9 @@ public class Code {
   @PostLoad
   @PostPersist
   private void updateKey() {
-    UUIDStringifier stringifier = Beans.bean(UUIDStringifier.class);
+    if (stringifier == null) {
+      stringifier = Beans.bean(UUIDStringifier.class);
+    }
     key = stringifier.toString(id);
   }
 

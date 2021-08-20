@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(PathComponents.GUESSES_PATH)
-@CrossOrigin({"https://www.webtools.services", "http://localhost:4200"})
+@CrossOrigin({"http://localhost:4200"})
 public class GuessController {
 
   private final CodeService codeService;

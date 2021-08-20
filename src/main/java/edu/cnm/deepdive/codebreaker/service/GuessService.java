@@ -114,8 +114,12 @@ public class GuessService {
    * key} (if it exists).
    */
   public Optional<Guess> get(@NonNull String key) {
-    UUID id = stringifier.fromString(key);
-    return guessRepository.findById(id);
+    try {
+      UUID id = stringifier.fromString(key);
+      return guessRepository.findById(id);
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
   }
 
   private void validate(Code code, Guess guess) throws InvalidPropertyException {

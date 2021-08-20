@@ -18,6 +18,7 @@ package edu.cnm.deepdive.codebreaker.model.dao;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -33,20 +34,20 @@ public interface CodeRepository extends JpaRepository<Code, UUID> {
    * Queries and returns all {@link Code} instances, in descending order by creation date.
    * @return
    */
-  Iterable<Code> getAllByOrderByCreatedDesc();
+  Stream<Code> getAllByOrderByCreatedDesc();
 
   /**
    * Queries and returns all solved {@link Code} instances, in descending order by creation date.
    * @return
    */
   @Query("SELECT DISTINCT c FROM Guess AS g JOIN g.code c WHERE c.length = g.exactMatches ORDER BY c.created DESC")
-  Iterable<Code> getAllSolvedOrderByCreatedDesc();
+  Stream<Code> getAllSolvedOrderByCreatedDesc();
 
   /**
    * Queries and returns all unsolved {@link Code} instances, in descending order by creation date.
    * @return
    */
   @Query("SELECT c FROM Code AS c WHERE NOT EXISTS (SELECT g FROM Guess AS g WHERE g.code = c AND g.exactMatches = c.length) ORDER BY c.created DESC")
-  Iterable<Code> getAllUnsolvedOrderByCreatedDesc();
+  Stream<Code> getAllUnsolvedOrderByCreatedDesc();
 
 }

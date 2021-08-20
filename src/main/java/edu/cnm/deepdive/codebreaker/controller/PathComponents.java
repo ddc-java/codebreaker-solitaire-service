@@ -17,7 +17,7 @@ package edu.cnm.deepdive.codebreaker.controller;
 
 class PathComponents {
 
-  static final String ID_PATTERN = "[\\da-zA-Z]+";
+  static final String ID_PATTERN = "[-\\w]+";
   static final String CODES_COMPONENT = "/codes";
   static final String CODES_PATH = CODES_COMPONENT;
   static final String CODE_ID_COMPONENT = "/{codeId:" + ID_PATTERN +  "}";

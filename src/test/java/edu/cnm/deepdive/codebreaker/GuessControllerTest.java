@@ -195,7 +195,7 @@ class GuessControllerTest {
             .contextPath(contextPath)
     )
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is(guess.getKey().toString())))
+        .andExpect(jsonPath("$.id", is(guess.getKey())))
         .andExpect(jsonPath("$.text", is("AAAA")))
         .andDo(
             document(

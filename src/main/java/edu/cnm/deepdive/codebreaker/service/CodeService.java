@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -112,8 +113,12 @@ public class CodeService {
    * (if it exists).
    */
   public Optional<Code> get(@NonNull String key) {
-    UUID id = stringifier.fromString(key);
-    return codeRepository.findById(id);
+    try {
+      UUID id = stringifier.fromString(key);
+      return codeRepository.findById(id);
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
   }
 
   /**
@@ -137,10 +142,10 @@ public class CodeService {
    * @throws InvalidPropertyException If {@code statusString} does not match one of {@link
    *                                  Status#values()}.
    */
-  public Iterable<Code> list(@NonNull String statusString) throws InvalidPropertyException {
+  public Stream<Code> list(@NonNull String statusString) throws InvalidPropertyException {
     try {
       Status status = Status.valueOf(statusString.toUpperCase());
-      Iterable<Code> selection;
+      Stream<Code> selection;
       switch (status) {
         case ALL:
           selection = codeRepository.getAllByOrderByCreatedDesc();
@@ -152,7 +157,7 @@ public class CodeService {
           selection = codeRepository.getAllSolvedOrderByCreatedDesc();
           break;
         default:
-          selection = Collections.emptyList();
+          selection = Stream.of();
           break;
       }
       return selection;

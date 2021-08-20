@@ -22,11 +22,13 @@ import edu.cnm.deepdive.codebreaker.service.CodeService;
 import edu.cnm.deepdive.codebreaker.service.CodeService.Status;
 import java.net.URI;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 import javax.validation.Valid;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(PathComponents.CODES_PATH)
-@CrossOrigin({"https://www.webtools.services", "http://localhost:4200"})
+@CrossOrigin({"http://localhost:4200"})
 public class CodeController {
 
   private final CodeService codeService;
@@ -70,9 +72,11 @@ public class CodeController {
    *                                  Status}.
    */
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public Iterable<Code> list(@RequestParam(required = false, defaultValue = "ALL") String status)
+  public Stream<Code> list(@RequestParam(required = false, defaultValue = "ALL") String status)
       throws InvalidPropertyException {
-    return codeService.list(status);
+    try (Stream<Code> codes = codeService.list(status)) {
+      return codes;
+    }
   }
 
   /**

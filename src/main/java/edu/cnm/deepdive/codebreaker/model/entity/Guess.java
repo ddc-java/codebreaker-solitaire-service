@@ -58,6 +58,8 @@ import org.springframework.lang.NonNull;
 @JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution"})
 public class Guess {
 
+  private static UUIDStringifier stringifier;
+
   @NonNull
   @Id
   @GeneratedValue(generator = "uuid2")
@@ -227,7 +229,9 @@ public class Guess {
   @PostLoad
   @PostPersist
   private void updateKey() {
-    UUIDStringifier stringifier = Beans.bean(UUIDStringifier.class);
+    if (stringifier == null) {
+      stringifier = Beans.bean(UUIDStringifier.class);
+    }
     key = stringifier.toString(id);
   }
 

@@ -22,13 +22,13 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.4.4</version>
+    <version>2.5.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>edu.cnm.deepdive</groupId>
   <artifactId>codebreaker-solitaire-service</artifactId>
-  <version>1.0.9</version>
+  <version>1.1.1</version>
   <name>Codebreaker Solitaire Service</name>
   <description>Code generator &amp; game service</description>
 
@@ -84,7 +84,7 @@
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>1.5.8</version>
+        <version>2.1.0</version>
         <executions>
           <execution>
             <id>generate-docs</id>
@@ -109,7 +109,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.2.0</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
