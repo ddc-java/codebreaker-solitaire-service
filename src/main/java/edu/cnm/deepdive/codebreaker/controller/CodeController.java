@@ -84,7 +84,6 @@ public class CodeController {
    *
    * @param code {@link Code} specifying the character pool and length of the code to be generated.
    * @return Validated, completed, and persisted {@link Code} instance.
-   * @throws MethodArgumentNotValidException If the {@code code} properties fail low-level
    *                                         validation for data model integrity.
    * @throws InvalidPropertyException        If the {@code code} properties fail high-level
    *                                         validation against business rules.

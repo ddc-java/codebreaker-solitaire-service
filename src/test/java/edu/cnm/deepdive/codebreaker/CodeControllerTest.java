@@ -24,7 +24,6 @@ import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
-import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
