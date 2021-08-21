@@ -23,6 +23,7 @@ import edu.cnm.deepdive.codebreaker.service.GuessService;
 import java.util.NoSuchElementException;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(PathComponents.GUESSES_PATH)
+@ExposesResourceFor(Guess.class)
 @CrossOrigin({"http://localhost:4200"})
 public class GuessController {
 
@@ -96,11 +98,7 @@ public class GuessController {
     return codeService
         .get(codeId)
         .map((code) -> guessService.add(code, guess))
-        .map((g) -> ResponseEntity.created(WebMvcLinkBuilder
-            .linkTo(WebMvcLinkBuilder
-                .methodOn(GuessController.class)
-                .get(codeId, g.getKey()))
-            .toUri()).body(g))
+        .map((g) -> ResponseEntity.created(g.getHref()).body(g))
         .orElseThrow();
   }
 

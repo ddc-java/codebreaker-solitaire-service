@@ -25,3 +25,7 @@ server:
   servlet:
     context-path: /codebreaker
 
+schedule:
+  cron: 0 0 0 * * ?
+  zone: UTC
+  stale-code-days: 30

@@ -23,8 +23,10 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import edu.cnm.deepdive.codebreaker.configuration.Beans;
 import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
+import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -43,6 +45,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.lang.NonNull;
 
 /**
@@ -55,10 +58,11 @@ import org.springframework.lang.NonNull;
     indexes = @Index(columnList = "created")
 )
 @JsonInclude(Include.NON_NULL)
-@JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution"})
+@JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution", "href"})
 public class Guess {
 
-  private static UUIDStringifier stringifier;
+  private static AtomicReference<UUIDStringifier> stringifier = new AtomicReference<>();
+  private static AtomicReference<EntityLinks> entityLinks = new AtomicReference<>();
 
   @NonNull
   @Id
@@ -98,6 +102,10 @@ public class Guess {
   @Transient
   @JsonProperty(value = "id", access = Access.READ_ONLY)
   private String key;
+
+  @Transient
+  @JsonProperty(access = Access.READ_ONLY)
+  private URI href;
 
   /**
    * Returns the unique identifier of this guess.
@@ -208,13 +216,12 @@ public class Guess {
   }
 
   /**
-   * Sets the (transient) {@link String}-valued representation of the unique identifier of this
-   * guess.
+   * Returns the {@link URI} that can be used to reference this instance via a HTTP GET request.
    *
-   * @param key
+   * @return
    */
-  public void setKey(String key) {
-    this.key = key;
+  public URI getHref() {
+    return href;
   }
 
   /**
@@ -228,11 +235,11 @@ public class Guess {
 
   @PostLoad
   @PostPersist
-  private void updateKey() {
-    if (stringifier == null) {
-      stringifier = Beans.bean(UUIDStringifier.class);
-    }
-    key = stringifier.toString(id);
+  private void updateTransients() {
+    stringifier.compareAndSet(null, Beans.bean(UUIDStringifier.class));
+    key = stringifier.get().toString(id);
+    entityLinks.compareAndSet(null, Beans.bean(EntityLinks.class));
+    href = entityLinks.get().linkFor(Guess.class, code.getKey()).slash(key).toUri();
   }
 
 }

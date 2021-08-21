@@ -24,6 +24,7 @@ import java.net.URI;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 import javax.validation.Valid;
+import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,6 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(PathComponents.CODES_PATH)
+@ExposesResourceFor(Code.class)
 @CrossOrigin({"http://localhost:4200"})
 public class CodeController {
 
@@ -92,12 +94,7 @@ public class CodeController {
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Code> post(@Valid @RequestBody Code code) throws InvalidPropertyException {
     code = codeService.add(code);
-    URI location = WebMvcLinkBuilder
-        .linkTo(WebMvcLinkBuilder
-            .methodOn(CodeController.class)
-            .get(code.getKey()))
-        .toUri();
-    return ResponseEntity.created(location).body(code);
+    return ResponseEntity.created(code.getHref()).body(code);
   }
 
   /**

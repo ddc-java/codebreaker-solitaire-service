@@ -22,7 +22,6 @@ import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.CodeService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
-import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -264,7 +263,11 @@ class GuessControllerTest {
             .type(JsonFieldType.NUMBER),
         fieldWithPath("solution")
             .description("Flag indicating whether this guess exacly matches the code.")
-            .type(JsonFieldType.BOOLEAN)
+            .type(JsonFieldType.BOOLEAN),
+        fieldWithPath("href")
+            .description(
+                "URL of code resource, usable in HTTP GET requests.")
+            .type(JsonFieldType.STRING)
     );
   }
 

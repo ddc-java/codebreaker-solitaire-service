@@ -23,10 +23,13 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import edu.cnm.deepdive.codebreaker.configuration.Beans;
 import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -48,6 +51,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.lang.NonNull;
 
 /**
@@ -61,17 +65,17 @@ import org.springframework.lang.NonNull;
     indexes = @Index(columnList = "created")
 )
 @JsonInclude(Include.NON_NULL)
-@JsonPropertyOrder({"id", "created", "pool", "length", "guessCount", "solved", "text"})
+@JsonPropertyOrder({"id", "created", "pool", "length", "guessCount", "solved", "text", "href"})
 public class Code {
 
   /**
    * Maximum allowed length of a generated code (and any guess submitted against the code).
    */
   public static final int MAX_CODE_LENGTH = 20;
-
   private static final int MAX_POOL_LENGTH = 255;
 
-  private static UUIDStringifier stringifier;
+  private static AtomicReference<UUIDStringifier> stringifier = new AtomicReference<>();
+  private static AtomicReference<EntityLinks> entityLinks = new AtomicReference<>();
 
   @NonNull
   @Id
@@ -113,6 +117,10 @@ public class Code {
   @Transient
   @JsonProperty(value = "id", access = Access.READ_ONLY)
   private String key;
+
+  @Transient
+  @JsonProperty(access = Access.READ_ONLY)
+  private URI href;
 
   /**
    * Returns the unique identifier of this code.
@@ -212,13 +220,12 @@ public class Code {
   }
 
   /**
-   * Sets the (transient) {@link String}-valued representation of the unique identifier of this
-   * code.
+   * Returns the {@link URI} that can be used to reference this instance via a HTTP GET request.
    *
-   * @param key
+   * @return
    */
-  public void setKey(String key) {
-    this.key = key;
+  public URI getHref() {
+    return href;
   }
 
   /**
@@ -254,11 +261,11 @@ public class Code {
 
   @PostLoad
   @PostPersist
-  private void updateKey() {
-    if (stringifier == null) {
-      stringifier = Beans.bean(UUIDStringifier.class);
-    }
-    key = stringifier.toString(id);
+  private void updateTransients() {
+    stringifier.compareAndSet(null, Beans.bean(UUIDStringifier.class));
+    key = stringifier.get().toString(id);
+    entityLinks.compareAndSet(null, Beans.bean(EntityLinks.class));
+    href = entityLinks.get().linkForItemResource(Code.class, key).toUri();
   }
 
 }

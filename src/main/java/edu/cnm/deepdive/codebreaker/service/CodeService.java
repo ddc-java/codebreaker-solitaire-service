@@ -18,7 +18,9 @@ package edu.cnm.deepdive.codebreaker.service;
 import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.InvalidPropertyException;
 import edu.cnm.deepdive.codebreaker.model.dao.CodeRepository;
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +29,9 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -52,6 +56,9 @@ public class CodeService {
   private final UUIDStringifier stringifier;
   private final Random rng;
 
+  @Value("${schedule.stale-code-days}")
+  private int staleCodeDays;
+
   /**
    * Initalizes the service with a {@link CodeRepository}, {@link UUIDStringifier}, and {@link
    * Random} (i.e. a source of randomness).
@@ -66,6 +73,13 @@ public class CodeService {
     this.codeRepository = codeRepository;
     this.stringifier = stringifier;
     this.rng = rng;
+  }
+
+  @Scheduled(cron = "${schedule.cron}", zone = "${schedule.zone}")
+  public void cleanStaleCodes() {
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.DAY_OF_MONTH, -staleCodeDays);
+    codeRepository.deleteAll(codeRepository.findAllStale(calendar.getTime()));
   }
 
   /**

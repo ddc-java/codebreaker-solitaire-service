@@ -357,6 +357,10 @@ class CodeControllerTest {
         fieldWithPath("solved")
             .description("Flag indicating whether code has been guessed successfully.")
             .type(JsonFieldType.BOOLEAN),
+        fieldWithPath("href")
+            .description(
+                "URL of code resource, usable in HTTP GET requests.")
+            .type(JsonFieldType.STRING),
         fieldWithPath("text")
             .description(
                 "Text of secret code. This is only included for codes that have been solved.")

@@ -78,26 +78,26 @@ public class GuessService {
   public Guess add(@NonNull Code code, @NonNull Guess guess) throws InvalidPropertyException {
     validate(code, guess);
     int numCorrect = 0;
-    int numClose = 0;
     int[] codeCodePoints = codePoints(code.getText());
     int[] guessCodePoints = codePoints(guess.getText());
     Map<Integer, Integer> codeOccurrences = new HashMap<>();
+    Map<Integer, Integer> guessOccurrences = new HashMap<>();
     for (int i = 0; i < guessCodePoints.length; i++) {
-      if (guessCodePoints[i] == codeCodePoints[i]) {
+      int guessCodePoint = guessCodePoints[i];
+      int codeCodePoint = codeCodePoints[i];
+      if (guessCodePoint == codeCodePoint) {
         numCorrect++;
-        guessCodePoints[i] = 0;
       } else {
-        codeOccurrences.put(
-            codeCodePoints[i], 1 + codeOccurrences.getOrDefault(codeCodePoints[i], 0));
+        guessOccurrences.put(guessCodePoint, 1 + guessOccurrences.getOrDefault(guessCodePoint, 0));
+        codeOccurrences.put(codeCodePoint, 1 + codeOccurrences.getOrDefault(codeCodePoint, 0));
       }
     }
-    for (int codePoint : guessCodePoints) {
-      int count;
-      if (codePoint != 0 && (count = codeOccurrences.getOrDefault(codePoint, 0)) > 0) {
-        numClose++;
-        codeOccurrences.put(codePoint, count - 1);
-      }
-    }
+    int numClose = guessOccurrences
+        .entrySet()
+        .stream()
+        .mapToInt((entry) ->
+            Math.min(entry.getValue(), codeOccurrences.getOrDefault(entry.getKey(), 0)))
+        .sum();
     guess.setExactMatches(numCorrect);
     guess.setNearMatches(numClose);
     guess.setCode(code);

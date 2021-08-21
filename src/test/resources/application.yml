@@ -14,3 +14,8 @@ server:
 rest-docs:
   host: ddc-java.services
   scheme: https
+
+schedule:
+  cron: "-"
+  zone: UTC
+  stale-code-days: 30

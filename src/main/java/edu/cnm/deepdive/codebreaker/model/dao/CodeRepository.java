@@ -16,9 +16,8 @@
 package edu.cnm.deepdive.codebreaker.model.dao;
 
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
-import edu.cnm.deepdive.codebreaker.model.entity.Guess;
+import java.util.Date;
 import java.util.UUID;
-import java.util.stream.Stream;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -49,5 +48,13 @@ public interface CodeRepository extends JpaRepository<Code, UUID> {
    */
   @Query("SELECT c FROM Code AS c WHERE NOT EXISTS (SELECT g FROM Guess AS g WHERE g.code = c AND g.exactMatches = c.length) ORDER BY c.created DESC")
   Iterable<Code> getAllUnsolvedOrderByCreatedDesc();
+
+  /**
+   * Queries and returns all {@link Code} instances that have no guesses recorded since the {@code
+   * cutoff} date.
+   * @return
+   */
+  @Query("SELECT c FROM Code AS c WHERE c.created < :cutoff AND NOT EXISTS (SELECT g FROM Guess AS g WHERE g.code = c AND g.created > :cutoff)")
+  Iterable<Code> findAllStale(Date cutoff);
 
 }

@@ -17,12 +17,17 @@ package edu.cnm.deepdive.codebreaker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.hateoas.config.EnableHypermediaSupport;
+import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Starts a simple RESTful service providing a generalized form of the game <a
  * href="https://en.wikipedia.org/wiki/Bulls_and_Cows">Bulls and Cows</a>.
  */
 @SpringBootApplication
+@EnableHypermediaSupport(type = {HypermediaType.HAL})
+@EnableScheduling
 public class CodebreakerApplication {
 
   /**
