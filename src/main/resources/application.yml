@@ -3,9 +3,9 @@ spring:
     deserialization:
       accept-float-as-int: false
   datasource:
-    url: jdbc:derby:codebreaker-db;create=true;collation=TERRITORY_BASED:PRIMARY
+    url: jdbc:h2:file:./codebreaker-h2
   jpa:
-    database-platform: org.hibernate.dialect.DerbyTenSevenDialect
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
 #    properties:

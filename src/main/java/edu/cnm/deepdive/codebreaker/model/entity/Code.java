@@ -49,6 +49,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.hateoas.server.EntityLinks;
@@ -79,11 +80,15 @@ public class Code {
 
   @NonNull
   @Id
-  @GeneratedValue(generator = "uuid2")
-  @GenericGenerator(name = "uuid2", strategy = "uuid2")
-  @Column(name = "code_id", updatable = false, columnDefinition = "CHAR(16) FOR BIT DATA")
+  @GeneratedValue
+  @Column(name = "code_id", updatable = false, columnDefinition = "UUID")
   @JsonIgnore
   private UUID id;
+
+  @NonNull
+  @Column(nullable = false, updatable = false, unique = true, columnDefinition = "UUID")
+  @JsonIgnore
+  private UUID externalId = UUID.randomUUID();
 
   @NonNull
   @CreationTimestamp
@@ -123,13 +128,23 @@ public class Code {
   private URI href;
 
   /**
-   * Returns the unique identifier of this code.
+   * Returns the primary key and (internal) unique identifier of this code.
    *
    * @return
    */
   @NonNull
   public UUID getId() {
     return id;
+  }
+
+  /**
+   * Returns the external identifier of this code.
+   *
+   * @return
+   */
+  @NonNull
+  public UUID getExternalId() {
+    return externalId;
   }
 
   /**
@@ -263,7 +278,7 @@ public class Code {
   @PostPersist
   private void updateTransients() {
     stringifier.compareAndSet(null, Beans.bean(UUIDStringifier.class));
-    key = stringifier.get().toString(id);
+    key = stringifier.get().toString(externalId);
     entityLinks.compareAndSet(null, Beans.bean(EntityLinks.class));
     href = entityLinks.get().linkForItemResource(Code.class, key).toUri();
   }

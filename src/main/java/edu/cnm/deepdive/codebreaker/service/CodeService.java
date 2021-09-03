@@ -130,7 +130,7 @@ public class CodeService {
   public Optional<Code> get(@NonNull String key) {
     try {
       UUID id = stringifier.fromString(key);
-      return codeRepository.findById(id);
+      return codeRepository.findByExternalId(id);
     } catch (IllegalArgumentException e) {
       return Optional.empty();
     }

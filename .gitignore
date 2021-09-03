@@ -49,9 +49,6 @@
 # - local properties
 local.properties
 
-# - build output
-/build/
-
 
 ### Maven ###
 
@@ -70,6 +67,8 @@ HELP.md
 # - log file
 derby.log
 
+### H2 ###
+/codebreaker-h2*
 
 ### Floobits ###
 
