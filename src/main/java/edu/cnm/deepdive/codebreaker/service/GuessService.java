@@ -116,7 +116,7 @@ public class GuessService {
   public Optional<Guess> get(@NonNull String key) {
     try {
       UUID id = stringifier.fromString(key);
-      return guessRepository.findById(id);
+      return guessRepository.findByExternalId(id);
     } catch (IllegalArgumentException e) {
       return Optional.empty();
     }

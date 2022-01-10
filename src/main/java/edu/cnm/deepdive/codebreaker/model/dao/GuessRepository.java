@@ -16,6 +16,7 @@
 package edu.cnm.deepdive.codebreaker.model.dao;
 
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -25,5 +26,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * JpaRepository}.
  */
 public interface GuessRepository extends JpaRepository<Guess, UUID> {
+
+
+  /**
+   * Queries and returns the {@link Guess} instance (if it exists) with the specified external
+   * identifier.
+   *
+   * @param externalId Resource identifier.
+   * @return Specified {@link Guess} instance, if it exists.
+   */
+  Optional<Guess> findByExternalId(UUID externalId);
 
 }

@@ -17,6 +17,7 @@ package edu.cnm.deepdive.codebreaker.model.dao;
 
 import edu.cnm.deepdive.codebreaker.model.entity.Code;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,6 +29,15 @@ import org.springframework.data.jpa.repository.Query;
  * in descending order by creation date (i.e. most recent first).
  */
 public interface CodeRepository extends JpaRepository<Code, UUID> {
+
+  /**
+   * Queries and returns the {@link Code} instance (if it exists) with the specified external
+   * identifier.
+   *
+   * @param externalId Resource identifier.
+   * @return Specified {@link Code} instance, if it exists.
+   */
+  Optional<Code> findByExternalId(UUID externalId);
 
   /**
    * Queries and returns all {@link Code} instances, in descending order by creation date.
