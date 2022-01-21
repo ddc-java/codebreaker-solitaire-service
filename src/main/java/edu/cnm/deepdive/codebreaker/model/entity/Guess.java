@@ -195,8 +195,6 @@ public class Guess {
    * Sets the number of characters in this guess which are found in different positions in the code
    * (not counting those characters in the code that are matched exactly by other occurrences of the
    * same character in the guess).
-   *
-   * @param nearMatches
    */
   public void setNearMatches(int nearMatches) {
     this.nearMatches = nearMatches;

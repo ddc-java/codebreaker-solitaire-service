@@ -401,6 +401,11 @@ class GameControllerTest {
             .description(
                 "Text of secret code. This is only included for games that have been solved.")
             .type(JsonFieldType.STRING)
+            .optional(),
+        fieldWithPath("guesses")
+            .description(
+                "Array of guesses submitted in this the game. This is only included when retrieving a single game.")
+            .type(JsonFieldType.ARRAY)
             .optional()
     );
   }
