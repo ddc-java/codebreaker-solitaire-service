@@ -3,7 +3,7 @@ spring:
     deserialization:
       accept-float-as-int: false
   datasource:
-    url: jdbc:h2:file:./codebreaker-h2
+    url: "jdbc:h2:file:./db/codebreaker"
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -28,4 +28,4 @@ server:
 schedule:
   cron: 0 0 0 * * ?
   zone: UTC
-  stale-code-days: 30
+  stale-game-days: 30

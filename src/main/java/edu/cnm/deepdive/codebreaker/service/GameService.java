@@ -1,5 +1,5 @@
 /*
- *  Copyright 2021 CNM Ingenuity, Inc.
+ *  Copyright 2022 CNM Ingenuity, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,18 +16,15 @@
 package edu.cnm.deepdive.codebreaker.service;
 
 import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.InvalidPropertyException;
-import edu.cnm.deepdive.codebreaker.model.dao.CodeRepository;
-import edu.cnm.deepdive.codebreaker.model.entity.Code;
-import java.time.LocalDateTime;
+import edu.cnm.deepdive.codebreaker.model.dao.GameRepository;
+import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
@@ -35,15 +32,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
- * Implements high-level operations on new and existing {@link Code} instances. These operations
+ * Implements high-level operations on new and existing {@link Game} instances. These operations
  * include validating the character pools for new codes, by removing duplicated characters and
  * checking for whitespace, control, and undefined (i.e. not present in the Unicode Character
- * Database) characters; generating the random text for new codes; retrieving a single code using
- * its "stringified" id; defining and applying query filters to select all codes, solved codes only,
- * and unsolved codes only; deleting a single code; and deleting all codes.
+ * Database) characters; generating the random text for new codes; retrieving a single game using
+ * its external key; defining and applying query filters to select all codes, solved codes only,
+ * and unsolved codes only; deleting a single game; and deleting all codes.
  */
 @Service
-public class CodeService {
+public class GameService {
 
   private static final String POOL_PROPERTY = "pool";
   private static final String INVALID_CHARACTER_MESSAGE =
@@ -52,49 +49,45 @@ public class CodeService {
   private static final String INVALID_STATUS_MESSAGE =
       String.format("must be one of %s (case-insensitive).", Arrays.toString(Status.values()));
 
-  private final CodeRepository codeRepository;
-  private final UUIDStringifier stringifier;
+  private final GameRepository gameRepository;
   private final Random rng;
 
-  @Value("${schedule.stale-code-days}")
+  @Value("${schedule.stale-game-days}")
   private int staleCodeDays;
 
   /**
-   * Initalizes the service with a {@link CodeRepository}, {@link UUIDStringifier}, and {@link
-   * Random} (i.e. a source of randomness).
+   * Initializes the service with a {@link GameRepository} and {@link Random} (i.e. a source of
+   * randomness).
    *
-   * @param codeRepository Persistence operations provider.
-   * @param stringifier    Converter between {@link UUID} (primary key) instances and {@link String}
-   *                       representations.
+   * @param gameRepository Persistence operations provider.
    * @param rng            Source of randomness (for generating random codes).
    */
   @Autowired
-  public CodeService(CodeRepository codeRepository, UUIDStringifier stringifier, Random rng) {
-    this.codeRepository = codeRepository;
-    this.stringifier = stringifier;
+  public GameService(GameRepository gameRepository, Random rng) {
+    this.gameRepository = gameRepository;
     this.rng = rng;
   }
 
   @Scheduled(cron = "${schedule.cron}", zone = "${schedule.zone}")
-  public void cleanStaleCodes() {
+  public void cleanStaleGames() {
     Calendar calendar = Calendar.getInstance();
     calendar.add(Calendar.DAY_OF_MONTH, -staleCodeDays);
-    codeRepository.deleteAll(codeRepository.findAllStale(calendar.getTime()));
+    gameRepository.deleteAll(gameRepository.findAllStale(calendar.getTime()));
   }
 
   /**
-   * Validates, completes, and adds the partially-specified {@link Code} instance to the collection.
-   * Minimally, {@code code} must contain a character pool and code length; if the text of the code
-   * is not included (which is always the case for {@link Code} instances deserialized from JSON),
+   * Validates, completes, and adds the partially-specified {@link Game} instance to the collection.
+   * Minimally, {@code game} must contain a character pool and game length; if the text of the game
+   * is not included (which is always the case for {@link Game} instances deserialized from JSON),
    * random text is automatically generated.
    *
-   * @param code Partial {@link Code}.
-   * @return Completed and persisted {@link Code} instance.
-   * @throws InvalidPropertyException If {@code code} contains any invalid characters (whitespace,
+   * @param game Partial {@link Game}.
+   * @return Completed and persisted {@link Game} instance.
+   * @throws InvalidPropertyException If {@code game} contains any invalid characters (whitespace,
    *                                  control characters, or characters not included in the UCD).
    */
-  public Code add(@NonNull Code code) throws InvalidPropertyException {
-    int[] pool = code
+  public Game add(@NonNull Game game) throws InvalidPropertyException {
+    int[] pool = game
         .getPool()
         .codePoints()
         .distinct()
@@ -102,53 +95,52 @@ public class CodeService {
     if (
         IntStream
             .of(pool)
-            .anyMatch(CodeService::isInvalidCodePoint)
+            .anyMatch(GameService::isInvalidCodePoint)
     ) {
       throw new InvalidPropertyException(POOL_PROPERTY, INVALID_CHARACTER_MESSAGE);
     }
-    code.setPool(new String(pool, 0, pool.length));
-    if (code.getText() == null) {
+    game.setPool(new String(pool, 0, pool.length));
+    if (game.getText() == null) {
       int[] secret = IntStream
           .generate(() -> pool[rng.nextInt(pool.length)])
-          .limit(code.getLength())
+          .limit(game.getLength())
           .toArray();
       String text = new String(secret, 0, secret.length);
-      code.setText(text);
+      game.setText(text);
     }
-    return codeRepository.save(code);
+    return gameRepository.save(game);
   }
 
   /**
-   * Retrieves an {@link Optional Optional&lt;Code&gt;}, specified by {@code key}, from the
-   * collection. If there is no instance with the specified {@code key} in the collection, the
-   * {@link Optional} returned is empty.
+   * Retrieves an {@link Optional Optional&lt;Game&gt;}, specified by {@code externalKey}, from the
+   * collection. If there is no instance with the specified {@code externalKey} in the collection,
+   * the {@link Optional} returned is empty.
    *
-   * @param key Unique identifier of {@link Code} instance.
-   * @return {@link Optional Optional&lt;Code&gt;} containing {@link Code} referenced by {@code key}
-   * (if it exists).
+   * @param externalKey Unique identifier of {@link Game} instance.
+   * @return {@link Optional Optional&lt;Game&gt;} containing {@link Game} referenced by {@code
+   * externalKey} (if it exists).
    */
-  public Optional<Code> get(@NonNull String key) {
+  public Optional<Game> get(@NonNull UUID externalKey) {
     try {
-      UUID id = stringifier.fromString(key);
-      return codeRepository.findByExternalId(id);
+      return gameRepository.findByExternalKey(externalKey);
     } catch (IllegalArgumentException e) {
       return Optional.empty();
     }
   }
 
   /**
-   * Removes the specified {@link Code} instance from the collection.
+   * Removes the specified {@link Game} instance from the collection.
    *
-   * @param code {@link Code} to be removed.
+   * @param game {@link Game} to be removed.
    */
-  public void remove(@NonNull Code code) {
-    codeRepository.delete(code);
+  public void remove(@NonNull Game game) {
+    gameRepository.delete(game);
   }
 
   /**
-   * Returns a subset of {@link Code} instances from the collection, filtered by {@code
+   * Returns a subset of {@link Game} instances from the collection, filtered by {@code
    * statusString}. If {@code statusString}, when converted to uppercase, matches one of the
-   * enumerated {@link Status#values()} values} of {@link Status}, the corresponding subset is
+   * enumerated {@link Status#values() values} of {@link Status}, the corresponding subset is
    * returned; otherwise {@link IllegalArgumentException} is thrown.
    *
    * @param statusString Filter keyword, matching (when converted to uppercase) one of {@link
@@ -157,19 +149,19 @@ public class CodeService {
    * @throws InvalidPropertyException If {@code statusString} does not match one of {@link
    *                                  Status#values()}.
    */
-  public Iterable<Code> list(@NonNull String statusString) throws InvalidPropertyException {
+  public Iterable<Game> list(@NonNull String statusString) throws InvalidPropertyException {
     try {
       Status status = Status.valueOf(statusString.toUpperCase());
-      Iterable<Code> selection;
+      Iterable<Game> selection;
       switch (status) {
         case ALL:
-          selection = codeRepository.getAllByOrderByCreatedDesc();
+          selection = gameRepository.getAllByOrderByCreatedDesc();
           break;
         case UNSOLVED:
-          selection = codeRepository.getAllUnsolvedOrderByCreatedDesc();
+          selection = gameRepository.getAllUnsolvedOrderByCreatedDesc();
           break;
         case SOLVED:
-          selection = codeRepository.getAllSolvedOrderByCreatedDesc();
+          selection = gameRepository.getAllSolvedOrderByCreatedDesc();
           break;
         default:
           selection = List.of();
@@ -185,7 +177,7 @@ public class CodeService {
    * Removes all codes from the collection.
    */
   public void clear() {
-    codeRepository.deleteAll();
+    gameRepository.deleteAll();
   }
 
   private static boolean isInvalidCodePoint(int codePoint) {
@@ -195,7 +187,7 @@ public class CodeService {
   }
 
   /**
-   * Allowed filter values for retrieving {@link Code} subsets from the collection.
+   * Allowed filter values for retrieving {@link Game} subsets from the collection.
    */
   public enum Status {
 

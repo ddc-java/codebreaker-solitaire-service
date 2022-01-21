@@ -1,5 +1,5 @@
 /*
- *  Copyright 2021 CNM Ingenuity, Inc.
+ *  Copyright 2022 CNM Ingenuity, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package edu.cnm.deepdive.codebreaker.controller;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
+import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import java.util.Date;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Defines several mappings of exception types (thrown by the methods in {@link CodeController} and
+ * Defines several mappings of exception types (thrown by the methods in {@link GameController} and
  * {@link GuessController}) to HTTP response statuses. For some of these, the response body is an
  * instance of {@link DetailedExceptionResponse}.
  */
@@ -58,14 +59,14 @@ public class CodebreakerExceptionHandler {
    */
   @ExceptionHandler(AlreadySolvedException.class)
   @ResponseStatus(value = HttpStatus.CONFLICT, reason = ALREADY_SOLVED_MESSAGE)
-  public void handleAlreadSolved() {
+  public void handleAlreadySolved() {
   }
 
   /**
    * Maps {@link MethodArgumentNotValidException} (thrown when one of the {@link javax.validation}
-   * conditions, declared on fields of {@link edu.cnm.deepdive.codebreaker.model.entity.Code} and
-   * {@link edu.cnm.deepdive.codebreaker.model.entity.Guess}, fails) to the HTTP 400 (bad request)
-   * response status, then constructs and returns a response body with details on the failure.
+   * conditions, declared on fields of {@link Game} and {@link edu.cnm.deepdive.codebreaker.model.entity.Guess},
+   * fails) to the HTTP 400 (bad request) response status, then constructs and returns a response
+   * body with details on the failure.
    *
    * @param ex      {@link MethodArgumentNotValidException} thrown by one of the {@link
    *                javax.validation} conditions.
@@ -91,9 +92,9 @@ public class CodebreakerExceptionHandler {
 
   /**
    * Maps {@link InvalidPropertyException} (thrown when high-level validation of fields of {@link
-   * edu.cnm.deepdive.codebreaker.model.entity.Code} or {@link edu.cnm.deepdive.codebreaker.model.entity.Guess},
-   * fails) to the HTTP 400 (bad request) response status, then constructs and returns a response
-   * body with details on the failure.
+   * Game} or {@link edu.cnm.deepdive.codebreaker.model.entity.Guess}, fails) to the HTTP 400 (bad
+   * request) response status, then constructs and returns a response body with details on the
+   * failure.
    *
    * @param ex      {@link InvalidPropertyException} thrown by violation of high-level business
    *                rules.
@@ -146,16 +147,15 @@ public class CodebreakerExceptionHandler {
 
   /**
    * Defines a subclass of {@link IllegalStateException}, for use when a {@link
-   * edu.cnm.deepdive.codebreaker.model.entity.Guess} is submitted for a {@link
-   * edu.cnm.deepdive.codebreaker.model.entity.Code} that is already solved.
+   * edu.cnm.deepdive.codebreaker.model.entity.Guess} is submitted for a {@link Game} that is
+   * already solved.
    */
   public static class AlreadySolvedException extends IllegalStateException {
 
   }
 
   /**
-   * Defines a subclass of {@link IllegalArgumentException}, for use when a {@link
-   * edu.cnm.deepdive.codebreaker.model.entity.Code} or {@link
+   * Defines a subclass of {@link IllegalArgumentException}, for use when a {@link Game} or {@link
    * edu.cnm.deepdive.codebreaker.model.entity.Guess} is submitted with properties that violate
    * high-level business rules.
    */
@@ -192,6 +192,14 @@ public class CodebreakerExceptionHandler {
     private final String path;
     private final Map<String, String> details;
 
+    /**
+     * Initializes this error payload object with the specified properties.
+     *
+     * @param status  {@link HttpStatus} containing the error code.
+     * @param message General error text.
+     * @param details Request-specific properties.
+     * @param request {@link HttpServletRequest} from which exception was thrown.
+     */
     public DetailedExceptionResponse(HttpStatus status, String message, Map<String, String> details,
         HttpServletRequest request) {
       timestamp = new Date();
@@ -202,26 +210,48 @@ public class CodebreakerExceptionHandler {
       this.details = details;
     }
 
+    /**
+     * Returns the timestamp of the error.
+     */
     public Date getTimestamp() {
       return timestamp;
     }
 
+    /**
+     * Returns the HTTP response status code. indicating the general error type.
+     */
     public int getStatus() {
       return status;
     }
 
+    /**
+     * Returns a short text description of the general error type.
+     */
     public String getMessage() {
       return message;
     }
 
+    /**
+     * Returns a summary description of the specific error.
+     */
     public String getError() {
       return error;
     }
 
+    /**
+     * Returns the host-relative path portion of the requested URL.
+     */
     public String getPath() {
       return path;
     }
 
+    /**
+     * Returns details of the error(s), as a {@link Map}&lt;{@link String}, {@link String}&gt;,
+     * where each key is a request property name, and the associated value is the specific issue
+     * with the property.
+     *
+     * @return Property-to-error {@link Map}.
+     */
     public Map<String, String> getDetails() {
       return details;
     }

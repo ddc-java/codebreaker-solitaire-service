@@ -13,16 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package edu.cnm.deepdive.codebreaker.controller;
+package edu.cnm.deepdive.codebreaker.view;
 
-class PathComponents {
+/**
+ * Container class composed of {@code static} nested classes to be referenced in {@link
+ * com.fasterxml.jackson.annotation.JsonView @JsonView} annotations.
+ */
+public class GameProjection {
 
-  static final String ID_PATTERN = "[-\\w]+";
-  static final String GAMES_COMPONENT = "/games";
-  static final String GAMES_PATH = GAMES_COMPONENT;
-  static final String GAME_ID_COMPONENT = "/{gameId:" + ID_PATTERN +  "}";
-  static final String GUESSES_COMPONENT = "/guesses";
-  static final String GUESSES_PATH = GAMES_COMPONENT + GAME_ID_COMPONENT + GUESSES_COMPONENT;
-  static final String GUESS_ID_COMPONENT = "/{guessId:" + ID_PATTERN +  "}";
+  public static class Simple {
+
+  }
+
+  public static class Detailed extends Simple {
+
+  }
 
 }

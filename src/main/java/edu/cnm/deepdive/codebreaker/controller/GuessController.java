@@ -1,5 +1,5 @@
 /*
- *  Copyright 2021 CNM Ingenuity, Inc.
+ *  Copyright 2022 CNM Ingenuity, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 package edu.cnm.deepdive.codebreaker.controller;
 
 import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.InvalidPropertyException;
-import edu.cnm.deepdive.codebreaker.model.entity.Code;
+import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
-import edu.cnm.deepdive.codebreaker.service.CodeService;
+import edu.cnm.deepdive.codebreaker.service.GameService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.ExposesResourceFor;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,8 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Handles HTTP requests related to {@link Guess} instances. Since {@link Guess} is a child entity
- * to {@link Code}, the paths for all controller methods in this class are hierarchical, including
- * components and path variables to reference an instance of {@link Code}.
+ * to {@link Game}, the paths for all controller methods in this class are hierarchical, including
+ * components and path variables to reference an instance of {@link Game}.
  */
 @RestController
 @RequestMapping(PathComponents.GUESSES_PATH)
@@ -47,45 +47,45 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin({"http://localhost:4200"})
 public class GuessController {
 
-  private final CodeService codeService;
+  private final GameService gameService;
   private final GuessService guessService;
 
   /**
-   * Initializes this instance with a {@link CodeService} and {@link GuessService}.
+   * Initializes this instance with a {@link GameService} and {@link GuessService}.
    *
-   * @param codeService  Provider of high-level {@link Code}-related operations.
+   * @param gameService  Provider of high-level {@link Game}-related operations.
    * @param guessService Provider of high-level {@link Guess}-related operations.
    */
   @Autowired
-  public GuessController(CodeService codeService, GuessService guessService) {
-    this.codeService = codeService;
+  public GuessController(GameService gameService, GuessService guessService) {
+    this.gameService = gameService;
     this.guessService = guessService;
   }
 
   /**
-   * Returns all {@link Guess} instances associated with the specified {@link Code}.
+   * Returns all {@link Guess} instances associated with the specified {@link Game}.
    *
-   * @param codeId Unique identifier of code.
-   * @return All guesses submitted against the specified {@link Code}, in descending order by
+   * @param gameId Unique identifier of code.
+   * @return All guesses submitted against the specified {@link Game}, in descending order by
    * submission timestamp.
-   * @throws NoSuchElementException If {@code codeId} does not refer to a known {@link Code}.
+   * @throws NoSuchElementException If {@code gameId} does not refer to a known {@link Game}.
    */
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public Iterable<Guess> list(@PathVariable String codeId) throws NoSuchElementException {
-    return codeService
-        .get(codeId)
-        .map(Code::getGuesses)
+  public Iterable<Guess> list(@PathVariable UUID gameId) throws NoSuchElementException {
+    return gameService
+        .get(gameId)
+        .map(Game::getGuesses)
         .orElseThrow();
   }
 
   /**
-   * Adds the specified {@link Guess} to the referenced {@link Code code}'s collection of guesses.
+   * Adds the specified {@link Guess} to the referenced {@link Game game}'s collection of guesses.
    *
-   * @param codeId Unique identifier of code.
-   * @param guess  {@link Guess} submitted against {@link Code} referenced by {@code codeId}.
+   * @param gameId Unique identifier of game.
+   * @param guess  {@link Guess} submitted against {@link Game} referenced by {@code gameId}.
    * @return Validated and persisted {@link Guess} instance.
-   * @throws NoSuchElementException          If {@code codeId} does not refer to a known {@link
-   *                                         Code}.
+   * @throws NoSuchElementException          If {@code gameId} does not refer to a known {@link
+   *                                         Game}.
    * @throws MethodArgumentNotValidException If the {@code guess} properties fail low-level
    *                                         validation for data model integrity.
    * @throws InvalidPropertyException        If the {@code guess} properties fail high-level
@@ -93,34 +93,34 @@ public class GuessController {
    */
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Guess> post(@PathVariable String codeId, @Valid @RequestBody Guess guess)
+  public ResponseEntity<Guess> post(@PathVariable UUID gameId, @Valid @RequestBody Guess guess)
       throws NoSuchElementException, MethodArgumentNotValidException, InvalidPropertyException {
-    return codeService
-        .get(codeId)
-        .map((code) -> guessService.add(code, guess))
+    return gameService
+        .get(gameId)
+        .map((game) -> guessService.add(game, guess))
         .map((g) -> ResponseEntity.created(g.getHref()).body(g))
         .orElseThrow();
   }
 
   /**
-   * Returns a single instance of {@link Guess}, as specified by {@code codeId} and {@code guessId}.
+   * Returns a single instance of {@link Guess}, as specified by {@code gameId} and {@code guessId}.
    * If the {@link Guess} referenced by {@code guessId} is not one of the guesses submitted against
-   * the {@link Code} referenced by {@code codeId}, {@link NoSuchElementException} is thrown.
+   * the {@link Game} referenced by {@code gameId}, {@link NoSuchElementException} is thrown.
    *
-   * @param codeId  Unique identifier of code.
+   * @param gameId  Unique identifier of game.
    * @param guessId Unique identifier of guess.
    * @return {@link Guess} referenced by {@code guessId}.
-   * @throws NoSuchElementException If the referenced {@link Code} does not exist, the referenced
-   *                                {@link Guess} does not exist, or the {@link Code} was not
-   *                                submitted against the specified {@link Code}.
+   * @throws NoSuchElementException If the referenced {@link Game} does not exist, the referenced
+   *                                {@link Guess} does not exist, or the {@link Game} was not
+   *                                submitted against the specified {@link Game}.
    */
   @GetMapping(value = PathComponents.GUESS_ID_COMPONENT,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public Guess get(@PathVariable String codeId, @PathVariable String guessId)
+  public Guess get(@PathVariable UUID gameId, @PathVariable UUID guessId)
       throws NoSuchElementException {
-    return codeService
-        .get(codeId)
-        .flatMap((code) -> guessService.get(guessId))
+    return gameService
+        .get(gameId)
+        .flatMap((game) -> guessService.get(guessId))
         .orElseThrow();
   }
 

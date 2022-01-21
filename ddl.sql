@@ -1,4 +1,4 @@
-create table code
+create table game
 (
     code_id   CHAR(16) FOR BIT DATA not null,
     created   timestamp             not null,
@@ -19,9 +19,9 @@ create table guess
     primary key (guess_id)
 );
 
-create index IDXgbgh4wcibfavyjxrg5hbrbdfq on code (created);
+create index IDXgbgh4wcibfavyjxrg5hbrbdfq on game (created);
 
 create index IDX4xl15u97wgd6b6ji19yfqgdjr on guess (created);
 
 alter table guess
-    add constraint FKwak3gf9mjwbqqrneoqv4jq78 foreign key (code_id) references code;
+    add constraint FKwak3gf9mjwbqqrneoqv4jq78 foreign key (code_id) references game;

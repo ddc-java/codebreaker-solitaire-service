@@ -1,4 +1,19 @@
-package edu.cnm.deepdive.codebreaker;
+/*
+ *  Copyright 2022 CNM Ingenuity, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package edu.cnm.deepdive.codebreaker.controller;
 
 import static org.hamcrest.core.Is.is;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -18,10 +33,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.cnm.deepdive.codebreaker.model.entity.Code;
+import edu.cnm.deepdive.codebreaker.CodebreakerApplication;
+import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
-import edu.cnm.deepdive.codebreaker.service.CodeService;
+import edu.cnm.deepdive.codebreaker.service.GameService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
+import edu.cnm.deepdive.codebreaker.view.UUIDStringifier;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,9 +65,14 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest(classes = CodebreakerApplication.class)
 class GuessControllerTest {
 
+  private static final String ALL_GUESSES_PATH =
+      GameControllerTest.ALL_GAMES_PATH + "/{gameId}/guesses";
+  private static final String SINGLE_GUESS_PATH = ALL_GUESSES_PATH + "/{guessId}";
+
   private final ObjectMapper objectMapper;
-  private final CodeService codeService;
+  private final GameService gameService;
   private final GuessService guessService;
+  private final UUIDStringifier stringifier;
 
   @Value("${rest-docs.scheme}")
   private String docScheme;
@@ -65,11 +87,12 @@ class GuessControllerTest {
   private MockMvc mockMvc;
 
   @Autowired
-  GuessControllerTest(
-      ObjectMapper objectMapper, CodeService codeService, GuessService guessService) {
+  GuessControllerTest(ObjectMapper objectMapper, GameService gameService, GuessService guessService,
+      UUIDStringifier stringifier) {
     this.objectMapper = objectMapper;
-    this.codeService = codeService;
+    this.gameService = gameService;
     this.guessService = guessService;
+    this.stringifier = stringifier;
   }
 
   @BeforeEach
@@ -88,36 +111,38 @@ class GuessControllerTest {
         .build();
   }
 
+  @SuppressWarnings("unused")
   @AfterEach
   public void tearDown(WebApplicationContext webApplicationContext,
       RestDocumentationContextProvider restDocumentation) {
-    codeService.clear();
+    gameService.clear();
   }
 
   @Test
   public void postGuess_valid() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(6);
-    code.setText("ABACAB");
-    codeService.add(code);
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(6);
+    game.setText("ABACAB");
+    gameService.add(game);
     Map<String, String> guessSkeleton = Map.of("text", "AABBCC");
-    mockMvc.perform(
-        post("/{contextPathPart}/codes/{codeId}/guesses", contextPathPart, code.getKey())
-            .contextPath(contextPath)
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(objectMapper.writeValueAsString(guessSkeleton))
-    )
+    mockMvc
+        .perform(
+            post(ALL_GUESSES_PATH, contextPathPart, stringifier.toString(game.getExternalKey()))
+                .contextPath(contextPath)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(guessSkeleton))
+        )
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
         .andExpect(jsonPath("$.exactMatches", is(1)))
         .andExpect(jsonPath("$.nearMatches", is(4)))
         .andDo(
             document(
-                "guess/post-valid",
+                "guesses/post-valid",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
-                pathParameters(getCodePathVariables()),
+                pathParameters(GameControllerTest.getPathVariables()),
                 relaxedRequestFields(getPostRequestFields()),
                 relaxedResponseFields(getFlatFields())
             )
@@ -126,26 +151,27 @@ class GuessControllerTest {
 
   @Test
   public void postGuess_invalid() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(4);
-    codeService.add(code);
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(4);
+    gameService.add(game);
     Map<String, String> guessSkeleton = Map.of("text", "AAA");
-    mockMvc.perform(
-        post("/{contextPathPart}/codes/{codeId}/guesses", contextPathPart, code.getKey())
-            .contextPath(contextPath)
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(objectMapper.writeValueAsString(guessSkeleton))
-    )
+    mockMvc
+        .perform(
+            post(ALL_GUESSES_PATH, contextPathPart, stringifier.toString(game.getExternalKey()))
+                .contextPath(contextPath)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(guessSkeleton))
+        )
         .andExpect(status().isBadRequest())
         .andExpect(header().doesNotExist("Location"))
         .andExpect(jsonPath("$.status", is(400)))
         .andDo(
             document(
-                "guess/post-invalid",
+                "guesses/post-invalid",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
-                pathParameters(getCodePathVariables()),
+                pathParameters(GameControllerTest.getPathVariables()),
                 relaxedRequestFields(getPostRequestFields()),
                 relaxedResponseFields(CommonFieldDescriptors.getExceptionFields())
             )
@@ -154,53 +180,56 @@ class GuessControllerTest {
 
   @Test
   public void listGuesses_valid() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(6);
-    codeService.add(code);
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(6);
+    gameService.add(game);
     for (String text : new String[]{"AAAAAA", "BBBBBB", "CCCCCC"}) {
       Guess guess = new Guess();
       guess.setText(text);
-      guessService.add(code, guess);
+      guessService.add(game, guess);
     }
-    mockMvc.perform(
-        get("/{contextPathPart}/codes/{codeId}/guesses", contextPathPart, code.getKey())
-            .contextPath(contextPath)
-    )
+    mockMvc
+        .perform(
+            get(ALL_GUESSES_PATH, contextPathPart, stringifier.toString(game.getExternalKey()))
+                .contextPath(contextPath)
+        )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is(3)))
         .andDo(
             document(
-                "guess/list-valid",
+                "guesses/list-valid",
                 preprocessResponse(prettyPrint()),
-                pathParameters(getCodePathVariables())
+                pathParameters(GameControllerTest.getPathVariables())
             )
         );
   }
 
   @Test
   public void getGuess_valid() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(4);
-    codeService.add(code);
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(4);
+    gameService.add(game);
     Guess guess = new Guess();
-    guess.setCode(code);
+    guess.setGame(game);
     guess.setText("AAAA");
-    guessService.add(code, guess);
-    mockMvc.perform(
-        get("/{contextPathPart}/codes/{codeId}/guesses/{guessId}",
-            contextPathPart, code.getKey(), guess.getKey())
-            .contextPath(contextPath)
-    )
+    guessService.add(game, guess);
+    String key = stringifier.toString(guess.getExternalKey());
+    mockMvc
+        .perform(
+            get(SINGLE_GUESS_PATH,
+                contextPathPart, stringifier.toString(game.getExternalKey()), key)
+                .contextPath(contextPath)
+        )
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.id", is(guess.getKey())))
+        .andExpect(jsonPath("$.id", is(key)))
         .andExpect(jsonPath("$.text", is("AAAA")))
         .andDo(
             document(
-                "guess/get-valid",
+                "guesses/get-valid",
                 preprocessResponse(prettyPrint()),
-                pathParameters(getGuessPathVariables()),
+                pathParameters(getPathVariables()),
                 relaxedResponseFields(getFlatFields())
             )
         );
@@ -208,26 +237,18 @@ class GuessControllerTest {
 
   @Test
   public void getGuess_invalid() throws Exception {
-    mockMvc.perform(
-        get("/{contextPathPart}/codes/00000000000000000000000000/guesses/00000000000000000000000000",
-            contextPathPart)
-            .contextPath(contextPath)
-    )
+    mockMvc
+        .perform(
+            get(SINGLE_GUESS_PATH,
+                contextPathPart, "00000000000000000000000000", "00000000000000000000000000")
+                .contextPath(contextPath)
+        )
         .andExpect(status().isNotFound())
-        .andDo(document("guess/get-invalid"));
+        .andDo(document("guesses/get-invalid"));
   }
 
-  private List<ParameterDescriptor> getCodePathVariables() {
-    return List.of(
-        parameterWithName("codeId")
-            .description("Unique identifier of code."),
-        parameterWithName("contextPathPart")
-            .ignored()
-    );
-  }
-
-  private List<ParameterDescriptor> getGuessPathVariables() {
-    List<ParameterDescriptor> fields = new LinkedList<>(getCodePathVariables());
+  private List<ParameterDescriptor> getPathVariables() {
+    List<ParameterDescriptor> fields = new LinkedList<>(GameControllerTest.getPathVariables());
     Collections.addAll(
         fields,
         parameterWithName("guessId")
@@ -256,17 +277,18 @@ class GuessControllerTest {
             .description("Text of guess.")
             .type(JsonFieldType.STRING),
         fieldWithPath("exactMatches")
-            .description("Count of characters in the guess that are in the same positions in the code.")
+            .description(
+                "Count of characters in the guess that are in the same positions in the code.")
             .type(JsonFieldType.NUMBER),
         fieldWithPath("nearMatches")
-            .description("Count of characters in the guess that are in code, but not in the same positions.")
+            .description(
+                "Count of characters in the guess that are in code, but not in the same positions.")
             .type(JsonFieldType.NUMBER),
         fieldWithPath("solution")
             .description("Flag indicating whether this guess exacly matches the code.")
             .type(JsonFieldType.BOOLEAN),
         fieldWithPath("href")
-            .description(
-                "URL of code resource, usable in HTTP GET requests.")
+            .description("URL of code resource, usable in HTTP GET requests.")
             .type(JsonFieldType.STRING)
     );
   }

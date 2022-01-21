@@ -1,4 +1,19 @@
-package edu.cnm.deepdive.codebreaker;
+/*
+ *  Copyright 2022 CNM Ingenuity, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package edu.cnm.deepdive.codebreaker.controller;
 
 import static org.hamcrest.core.Is.is;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
@@ -20,10 +35,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.cnm.deepdive.codebreaker.model.entity.Code;
+import edu.cnm.deepdive.codebreaker.CodebreakerApplication;
+import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
-import edu.cnm.deepdive.codebreaker.service.CodeService;
+import edu.cnm.deepdive.codebreaker.service.GameService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
+import edu.cnm.deepdive.codebreaker.view.UUIDStringifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,11 +64,17 @@ import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @SpringBootTest(classes = CodebreakerApplication.class)
-class CodeControllerTest {
+class GameControllerTest {
+
+  static final String ALL_GAMES_PATH =
+      "/{contextPathPart}" + PathComponents.GAMES_COMPONENT;
+  static final String GAMES_FILTER_PATH = ALL_GAMES_PATH + "?status={status}";
+  static final String SINGLE_GAME_PATH = ALL_GAMES_PATH + "/{gameId}";
 
   private final ObjectMapper objectMapper;
-  private final CodeService codeService;
+  private final GameService gameService;
   private final GuessService guessService;
+  private final UUIDStringifier stringifier;
 
   @Value("${rest-docs.scheme}")
   private String docScheme;
@@ -66,11 +89,12 @@ class CodeControllerTest {
   private MockMvc mockMvc;
 
   @Autowired
-  CodeControllerTest(
-      ObjectMapper objectMapper, CodeService codeService, GuessService guessService) {
+  GameControllerTest(ObjectMapper objectMapper, GameService gameService, GuessService guessService,
+      UUIDStringifier stringifier) {
     this.objectMapper = objectMapper;
-    this.codeService = codeService;
+    this.gameService = gameService;
     this.guessService = guessService;
+    this.stringifier = stringifier;
   }
 
   @BeforeEach
@@ -89,30 +113,32 @@ class CodeControllerTest {
         .build();
   }
 
+  @SuppressWarnings("unused")
   @AfterEach
   public void tearDown(WebApplicationContext webApplicationContext,
       RestDocumentationContextProvider restDocumentation) {
-    codeService.clear();
+    gameService.clear();
   }
 
   @Test
-  public void postCode_valid() throws Exception {
+  public void postGame_valid() throws Exception {
     Map<String, Object> payload = new HashMap<>();
     payload.put("pool", "ABCDEF");
     payload.put("length", 4);
-    mockMvc.perform(
-        post("/{contextPathPart}/codes", contextPathPart)
-            .contextPath(contextPath)
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(objectMapper.writeValueAsString(payload))
-    )
+    mockMvc
+        .perform(
+            post(ALL_GAMES_PATH, contextPathPart)
+                .contextPath(contextPath)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(payload))
+        )
         .andExpect(status().isCreated())
         .andExpect(header().exists("Location"))
         .andExpect(jsonPath("$.pool", is("ABCDEF")))
         .andExpect(jsonPath("$.length", is(4)))
         .andDo(
             document(
-                "code/post-valid",
+                "games/post-valid",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 relaxedRequestFields(getPostFields()),
@@ -122,22 +148,23 @@ class CodeControllerTest {
   }
 
   @Test
-  public void postCode_invalid() throws Exception {
+  public void postGame_invalid() throws Exception {
     Map<String, Object> payload = new HashMap<>();
     payload.put("pool", "ABCDEF");
     payload.put("length", 0);
-    mockMvc.perform(
-        post("/{contextPathPart}/codes", contextPathPart)
-            .contextPath(contextPath)
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(objectMapper.writeValueAsString(payload))
-    )
+    mockMvc
+        .perform(
+            post(ALL_GAMES_PATH, contextPathPart)
+                .contextPath(contextPath)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(payload))
+        )
         .andExpect(status().isBadRequest())
         .andExpect(header().doesNotExist("Location"))
         .andExpect(jsonPath("$.status", is(400)))
         .andDo(
             document(
-                "code/post-invalid",
+                "games/post-invalid",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 relaxedRequestFields(getPostFields()),
@@ -147,31 +174,32 @@ class CodeControllerTest {
   }
 
   @Test
-  public void listCodes_all() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(4);
-    codeService.add(code);
-    code = new Code();
-    code.setPool("0123456789");
-    code.setLength(5);
-    codeService.add(code);
-    code = new Code();
-    code.setPool("ROYGBIV");
-    code.setLength(6);
-    codeService.add(code);
+  public void listGames_all() throws Exception {
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(4);
+    gameService.add(game);
+    game = new Game();
+    game.setPool("0123456789");
+    game.setLength(5);
+    gameService.add(game);
+    game = new Game();
+    game.setPool("ROYGBIV");
+    game.setLength(6);
+    gameService.add(game);
     Guess guess = new Guess();
-    guess.setText(code.getText());
-    guessService.add(code, guess);
-    mockMvc.perform(
-        get("/{contextPathPart}/codes", contextPathPart)
-            .contextPath(contextPath)
-    )
+    guess.setText(game.getText());
+    guessService.add(game, guess);
+    mockMvc
+        .perform(
+            get(ALL_GAMES_PATH, contextPathPart)
+                .contextPath(contextPath)
+        )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is(3)))
         .andDo(
             document(
-                "code/list-all",
+                "games/list-all",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 relaxedRequestParameters(getQueryParameters())
@@ -180,31 +208,32 @@ class CodeControllerTest {
   }
 
   @Test
-  public void listCodes_unsolved() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(4);
-    codeService.add(code);
-    code = new Code();
-    code.setPool("0123456789");
-    code.setLength(5);
-    codeService.add(code);
-    code = new Code();
-    code.setPool("ROYGBIV");
-    code.setLength(6);
-    codeService.add(code);
+  public void listGames_unsolved() throws Exception {
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(4);
+    gameService.add(game);
+    game = new Game();
+    game.setPool("0123456789");
+    game.setLength(5);
+    gameService.add(game);
+    game = new Game();
+    game.setPool("ROYGBIV");
+    game.setLength(6);
+    gameService.add(game);
     Guess guess = new Guess();
-    guess.setText(code.getText());
-    guessService.add(code, guess);
-    mockMvc.perform(
-        get("/{contextPathPart}/codes?status=UNSOLVED", contextPathPart)
-            .contextPath(contextPath)
-    )
+    guess.setText(game.getText());
+    guessService.add(game, guess);
+    mockMvc
+        .perform(
+            get(GAMES_FILTER_PATH, contextPathPart, "UNSOLVED")
+                .contextPath(contextPath)
+        )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is(2)))
         .andDo(
             document(
-                "code/list-unsolved",
+                "games/list-unsolved",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 relaxedRequestParameters(getQueryParameters())
@@ -213,31 +242,32 @@ class CodeControllerTest {
   }
 
   @Test
-  public void listCodes_solved() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(4);
-    codeService.add(code);
-    code = new Code();
-    code.setPool("0123456789");
-    code.setLength(5);
-    codeService.add(code);
-    code = new Code();
-    code.setPool("ROYGBIV");
-    code.setLength(6);
-    codeService.add(code);
+  public void listGames_solved() throws Exception {
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(4);
+    gameService.add(game);
+    game = new Game();
+    game.setPool("0123456789");
+    game.setLength(5);
+    gameService.add(game);
+    game = new Game();
+    game.setPool("ROYGBIV");
+    game.setLength(6);
+    gameService.add(game);
     Guess guess = new Guess();
-    guess.setText(code.getText());
-    guessService.add(code, guess);
-    mockMvc.perform(
-        get("/{contextPathPart}/codes?status=SOLVED", contextPathPart)
-            .contextPath(contextPath)
-    )
+    guess.setText(game.getText());
+    guessService.add(game, guess);
+    mockMvc
+        .perform(
+            get(GAMES_FILTER_PATH, contextPathPart, "SOLVED")
+                .contextPath(contextPath)
+        )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()", is(1)))
         .andDo(
             document(
-                "code/list-solved",
+                "games/list-solved",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 relaxedRequestParameters(getQueryParameters())
@@ -246,21 +276,24 @@ class CodeControllerTest {
   }
 
   @Test
-  public void getCode_valid() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(4);
-    codeService.add(code);
-    mockMvc.perform(
-        get("/{contextPathPart}/codes/{codeId}", contextPathPart, code.getKey())
-            .contextPath(contextPath)
-    )
+  public void getGame_valid() throws Exception {
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(4);
+    gameService.add(game);
+    String key = stringifier.toString(game.getExternalKey());
+    mockMvc
+        .perform(
+            get(SINGLE_GAME_PATH, contextPathPart, key)
+                .contextPath(contextPath)
+        )
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", is(key)))
         .andExpect(jsonPath("$.pool", is("ABCDEF")))
         .andExpect(jsonPath("$.length", is(4)))
         .andDo(
             document(
-                "code/get-valid",
+                "games/get-valid",
                 preprocessResponse(prettyPrint()),
                 pathParameters(getPathVariables()),
                 relaxedResponseFields(getFlatFields())
@@ -269,63 +302,66 @@ class CodeControllerTest {
   }
 
   @Test
-  public void getCode_invalid() throws Exception {
-    mockMvc.perform(
-        get("/{contextPathPart}/codes/00000000000000000000000000", contextPathPart)
-            .contextPath(contextPath)
-    )
+  public void getGame_invalid() throws Exception {
+    mockMvc
+        .perform(
+            get(SINGLE_GAME_PATH, contextPathPart, "00000000000000000000000000")
+                .contextPath(contextPath)
+        )
         .andExpect(status().isNotFound())
-        .andDo(document("code/get-invalid"));
+        .andDo(document("games/get-invalid"));
   }
 
   @Test
-  public void deleteCode_valid() throws Exception {
-    Code code = new Code();
-    code.setPool("ABCDEF");
-    code.setLength(4);
-    codeService.add(code);
-    mockMvc.perform(
-        delete("/{contextPathPart}/codes/{codeId}", contextPathPart, code.getKey())
-            .contextPath(contextPath)
-    )
+  public void deleteGame_valid() throws Exception {
+    Game game = new Game();
+    game.setPool("ABCDEF");
+    game.setLength(4);
+    gameService.add(game);
+    mockMvc
+        .perform(
+            delete(SINGLE_GAME_PATH, contextPathPart, stringifier.toString(game.getExternalKey()))
+                .contextPath(contextPath)
+        )
         .andExpect(status().isNoContent())
         .andDo(
             document(
-                "code/delete-valid",
+                "games/delete-valid",
                 pathParameters(getPathVariables())
             )
         );
   }
 
   @Test
-  public void deleteCode_invalid() throws Exception {
-    mockMvc.perform(
-        delete("/{contextPathPart}/codes/00000000000000000000000000", contextPathPart)
-            .contextPath(contextPath)
-    )
+  public void deleteGame_invalid() throws Exception {
+    mockMvc
+        .perform(
+            get(SINGLE_GAME_PATH, contextPathPart, "00000000000000000000000000")
+                .contextPath(contextPath)
+        )
         .andExpect(status().isNotFound())
-        .andDo(document("code/delete-invalid"));
+        .andDo(document("games/delete-invalid"));
   }
 
-  private List<ParameterDescriptor> getPathVariables() {
+  static List<ParameterDescriptor> getPathVariables() {
     return List.of(
-        parameterWithName("codeId")
-            .description("Unique identifier of code."),
+        parameterWithName("gameId")
+            .description("Unique identifier of game."),
         parameterWithName("contextPathPart")
             .ignored()
     );
   }
 
-  private List<ParameterDescriptor> getQueryParameters() {
+  private static List<ParameterDescriptor> getQueryParameters() {
     return List.of(
         parameterWithName("status")
             .description(
-                "Status filter for selecting subset of codes: `ALL` (default), `UNSOLVED`, `SOLVED`.")
+                "Status filter for selecting subset of games: `ALL` (default), `UNSOLVED`, `SOLVED`.")
             .optional()
     );
   }
 
-  private List<FieldDescriptor> getPostFields() {
+  private static List<FieldDescriptor> getPostFields() {
     return List.of(
         fieldWithPath("pool")
             .description(
@@ -337,13 +373,13 @@ class CodeControllerTest {
     );
   }
 
-  private List<FieldDescriptor> getFlatFields() {
+  private static List<FieldDescriptor> getFlatFields() {
     return List.of(
         fieldWithPath("id")
-            .description("Unique identifier of the generated code.")
+            .description("Unique identifier of the game.")
             .type(JsonFieldType.STRING),
         fieldWithPath("created")
-            .description("Timestamp of code creation.")
+            .description("Timestamp of code creation (start of game).")
             .type(JsonFieldType.STRING),
         fieldWithPath("pool")
             .description("Pool of available characters for code.")
@@ -352,7 +388,7 @@ class CodeControllerTest {
             .description("Length (in characters) of generated code.")
             .type(JsonFieldType.NUMBER),
         fieldWithPath("guessCount")
-            .description("Number of guesses submitted for this code.")
+            .description("Number of guesses submitted in this game.")
             .type(JsonFieldType.NUMBER),
         fieldWithPath("solved")
             .description("Flag indicating whether code has been guessed successfully.")
@@ -363,7 +399,7 @@ class CodeControllerTest {
             .type(JsonFieldType.STRING),
         fieldWithPath("text")
             .description(
-                "Text of secret code. This is only included for codes that have been solved.")
+                "Text of secret code. This is only included for games that have been solved.")
             .type(JsonFieldType.STRING)
             .optional()
     );

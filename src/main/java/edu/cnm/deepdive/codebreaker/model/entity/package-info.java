@@ -1,4 +1,4 @@
 /**
- * Persistent entity classes encapsulating generated codes and submitted guesses.
+ * Persistent entity classes encapsulating games (with generated codes) and submitted guesses.
  */
 package edu.cnm.deepdive.codebreaker.model.entity;

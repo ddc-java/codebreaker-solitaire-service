@@ -1,6 +1,6 @@
 # Codebreaker Solitaire Service
 
-This project implements a REST service that provides a solitaire version of _Codebreaker_, a simple code-breaking game, similar to _Mastermind_ and the pencil-and-paper game _Bulls and Cows_. This project is used in the [Deep Dive Coding](https://deepdivecoding.com/) Java training programs.
+This project implements a REST service that provides a solitaire version of _Codebreaker_, a simple game-breaking game, similar to _Mastermind_ and the pencil-and-paper game _Bulls and Cows_. This project is used in the [Deep Dive Coding](https://deepdivecoding.com/) Java training programs.
 
 For more information, see the live service documentation at <https://ddc-java.services/codebreaker>.
 
@@ -8,7 +8,7 @@ For more information, see the live service documentation at <https://ddc-java.se
 
 Written by Nicholas Bennett.
 
-&copy; 2021 CNM Ingenuity, Inc.
+&copy; 2022 CNM Ingenuity, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

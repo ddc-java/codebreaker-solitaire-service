@@ -1,5 +1,5 @@
 /*
- *  Copyright 2021 CNM Ingenuity, Inc.
+ *  Copyright 2022 CNM Ingenuity, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,8 +21,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.cnm.deepdive.codebreaker.configuration.Beans;
-import edu.cnm.deepdive.codebreaker.service.UUIDStringifier;
+import edu.cnm.deepdive.codebreaker.view.GameProjection;
+import edu.cnm.deepdive.codebreaker.view.UUIDSerializer;
+import edu.cnm.deepdive.codebreaker.view.UUIDStringifier;
 import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
@@ -37,20 +41,19 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.lang.NonNull;
 
 /**
- * Encapsulates a single guess, submitted by a codebreaker, against a {@link Code}. Annotations are
+ * Encapsulates a single guess, submitted by a codebreaker, against a {@link Game}. Annotations are
  * used to specify the view&mdash;the JSON representation of the guess.
  */
 @SuppressWarnings("JpaDataSourceORMInspection")
@@ -60,10 +63,11 @@ import org.springframework.lang.NonNull;
 )
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution", "href"})
+@JsonView(GameProjection.Detailed.class)
 public class Guess {
 
-  private static AtomicReference<UUIDStringifier> stringifier = new AtomicReference<>();
   private static AtomicReference<EntityLinks> entityLinks = new AtomicReference<>();
+  private static AtomicReference<UUIDStringifier> stringifier = new AtomicReference<>();
 
   @NonNull
   @Id
@@ -74,8 +78,9 @@ public class Guess {
 
   @NonNull
   @Column(nullable = false, updatable = false, unique = true, columnDefinition = "UUID")
-  @JsonIgnore
-  private UUID externalId = UUID.randomUUID();
+  @JsonProperty(value = "id", access = Access.READ_ONLY)
+  @JsonSerialize(converter = UUIDSerializer.class)
+  private UUID externalKey;
 
   @NonNull
   @CreationTimestamp
@@ -86,14 +91,14 @@ public class Guess {
 
   @NonNull
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
-  @JoinColumn(name = "code_id", nullable = false, updatable = false)
+  @JoinColumn(name = "game_id", nullable = false, updatable = false)
   @JsonIgnore
-  private Code code;
+  private Game game;
 
   @NonNull
-  @Column(length = Code.MAX_CODE_LENGTH, name = "guess_text", nullable = false, updatable = false)
+  @Column(length = Game.MAX_CODE_LENGTH, name = "guess_text", nullable = false, updatable = false)
   @NotEmpty
-  @Size(max = Code.MAX_CODE_LENGTH)
+  @Size(max = Game.MAX_CODE_LENGTH)
   private String text;
 
   @Column(nullable = false, updatable = false)
@@ -105,17 +110,11 @@ public class Guess {
   private int nearMatches;
 
   @Transient
-  @JsonProperty(value = "id", access = Access.READ_ONLY)
-  private String key;
-
-  @Transient
   @JsonProperty(access = Access.READ_ONLY)
   private URI href;
 
   /**
    * Returns the primary key and (internal) unique identifier of this guess.
-   *
-   * @return
    */
   @NonNull
   public UUID getId() {
@@ -123,19 +122,15 @@ public class Guess {
   }
 
   /**
-   * Returns the external identifier of this code.
-   *
-   * @return
+   * Returns the external identifier of this guess.
    */
   @NonNull
-  public UUID getExternalId() {
-    return externalId;
+  public UUID getExternalKey() {
+    return externalKey;
   }
 
   /**
    * Returns the date this guess was first submitted and persisted to the database.
-   *
-   * @return
    */
   @NonNull
   public Date getCreated() {
@@ -143,28 +138,22 @@ public class Guess {
   }
 
   /**
-   * Returns the {@link Code} instance against which this guess was submitted.
-   *
-   * @return
+   * Returns the {@link Game} instance against which this guess was submitted.
    */
   @NonNull
-  public Code getCode() {
-    return code;
+  public Game getGame() {
+    return game;
   }
 
   /**
-   * Sets the {@link Code} instance against which this guess was submitted.
-   *
-   * @param code
+   * Sets the {@link Game} instance against which this guess was submitted.
    */
-  public void setCode(@NonNull Code code) {
-    this.code = code;
+  public void setGame(@NonNull Game game) {
+    this.game = game;
   }
 
   /**
    * Returns the text of this guess.
-   *
-   * @return
    */
   @NonNull
   public String getText() {
@@ -173,8 +162,6 @@ public class Guess {
 
   /**
    * Sets the text of this guess.
-   *
-   * @param text
    */
   public void setText(@NonNull String text) {
     this.text = text;
@@ -183,8 +170,6 @@ public class Guess {
   /**
    * Returns the number of characters in this guess which are found in the same positions in the
    * code.
-   *
-   * @return
    */
   public int getExactMatches() {
     return exactMatches;
@@ -192,8 +177,6 @@ public class Guess {
 
   /**
    * Sets the number of characters in this guess which are found in the same positions in the code.
-   *
-   * @param exactMatches
    */
   public void setExactMatches(int exactMatches) {
     this.exactMatches = exactMatches;
@@ -203,8 +186,6 @@ public class Guess {
    * Returns the number of characters in this guess which are found in different positions in the
    * code (not counting those characters in the code that are matched exactly by other occurrences
    * of the same character in the guess).
-   *
-   * @return
    */
   public int getNearMatches() {
     return nearMatches;
@@ -222,18 +203,7 @@ public class Guess {
   }
 
   /**
-   * Returns a {@link String}-valued representation of the unique identifier of this guess.
-   *
-   * @return
-   */
-  public String getKey() {
-    return key;
-  }
-
-  /**
    * Returns the {@link URI} that can be used to reference this instance via a HTTP GET request.
-   *
-   * @return
    */
   public URI getHref() {
     return href;
@@ -241,20 +211,27 @@ public class Guess {
 
   /**
    * Returns a {@code boolean} flag indicating whether this guess matches the code exactly.
-   *
-   * @return
    */
   public boolean isSolution() {
-    return exactMatches == code.getLength();
+    return exactMatches == game.getLength();
+  }
+
+  @PrePersist
+  private void generateExternalKey() {
+    externalKey = UUID.randomUUID();
   }
 
   @PostLoad
   @PostPersist
   private void updateTransients() {
-    stringifier.compareAndSet(null, Beans.bean(UUIDStringifier.class));
-    key = stringifier.get().toString(externalId);
     entityLinks.compareAndSet(null, Beans.bean(EntityLinks.class));
-    href = entityLinks.get().linkFor(Guess.class, code.getKey()).slash(key).toUri();
+    stringifier.compareAndSet(null, Beans.bean(UUIDStringifier.class));
+    UUIDStringifier stringifier = Guess.stringifier.get();
+    href = entityLinks
+        .get()
+        .linkFor(Guess.class, stringifier.toString(game.getExternalKey()))
+        .slash(stringifier.toString(externalKey))
+        .toUri();
   }
 
 }

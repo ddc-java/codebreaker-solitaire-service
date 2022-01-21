@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright 2021 CNM Ingenuity, Inc.
+  Copyright 2022 CNM Ingenuity, Inc.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.5.4</version>
+    <version>2.6.2</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>edu.cnm.deepdive</groupId>
   <artifactId>codebreaker-solitaire-service</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.0</version>
   <name>Codebreaker Solitaire Service</name>
   <description>Code generator &amp; game service</description>
 
@@ -105,7 +105,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -124,9 +124,9 @@
             <link>https://docs.spring.io/spring-data/data-jpa/docs/current/api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>https://docs.jboss.org/hibernate/orm/current/javadocs/</link>
-            <link>https://fasterxml.github.io/jackson-core/javadoc/2.12/</link>
-            <link>https://fasterxml.github.io/jackson-databind/javadoc/2.12/</link>
-            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.12/</link>
+            <link>https://fasterxml.github.io/jackson-core/javadoc/2.13/</link>
+            <link>https://fasterxml.github.io/jackson-databind/javadoc/2.13/</link>
+            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.13/</link>
             <link>https://javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/latest/</link>
             <link>https://javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/latest/</link>
           </links>

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2021 CNM Ingenuity, Inc.
+ *  Copyright 2022 CNM Ingenuity, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,20 +13,20 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package edu.cnm.deepdive.codebreaker.service;
+package edu.cnm.deepdive.codebreaker.view;
 
 import java.nio.ByteBuffer;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.UUID;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 /**
  * Service implementing the {@link UUIDStringifier} interface for a base64url representation of the
  * unsigned 128-bit value encapsulated in an instance of {@link UUID}.
  */
-@Service
+@Component
 public class Base64UrlStringifier implements UUIDStringifier {
 
   private final Encoder encoder = Base64.getUrlEncoder().withoutPadding();

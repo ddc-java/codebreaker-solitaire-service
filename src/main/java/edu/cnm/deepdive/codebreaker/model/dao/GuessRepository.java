@@ -1,5 +1,5 @@
 /*
- *  Copyright 2021 CNM Ingenuity, Inc.
+ *  Copyright 2022 CNM Ingenuity, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,9 +32,9 @@ public interface GuessRepository extends JpaRepository<Guess, UUID> {
    * Queries and returns the {@link Guess} instance (if it exists) with the specified external
    * identifier.
    *
-   * @param externalId Resource identifier.
+   * @param externalKey Resource identifier.
    * @return Specified {@link Guess} instance, if it exists.
    */
-  Optional<Guess> findByExternalId(UUID externalId);
+  Optional<Guess> findByExternalKey(UUID externalKey);
 
 }

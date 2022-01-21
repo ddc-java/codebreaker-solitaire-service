@@ -19,7 +19,7 @@ _Codebreaker_ is a simple game of deductive reasoning---a more generalized varia
 
 === Players
 
-There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-paper and board game variants, players typically alternate playing these roles; in this variant, the service is always the codemaker, and the client is always the codebreaker. Thus, in its current implementation, this is a solitaire game: a client application requests generation of a code from the service, and then submits the user's guesses to the service, one at a time, displaying the response to the user.
+There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-paper and board game variants, players typically alternate playing these roles; in this variant, the service is always the codemaker, and the client is always the codebreaker. Thus, in its current implementation, this is a solitaire game: a client application requests generation of a game from the service, and then submits the user's guesses to the service, one at a time, displaying the response to the user.
 
 === Sequence of play
 
@@ -27,9 +27,9 @@ There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-
 
 A game begins when the codebreaker requests that a new code be generated, with the code length and pool of characters specified in the request.
 
-See <<post_code_endpoint,`POST /codebreaker/codes`>> for details on requesting the generation of new code (thus starting a new game) from this service.
+See <<post_game_endpoint,`POST /codebreaker/games`>> for details on requesting the generation of a new code (thus starting a new game) from this service.
 
-==== Guessing the code
+==== Guessing the game
 
 The objective of the codebreaker in the game is to guess a secret code (generated randomly by the codemaker, within parameters agreed on by both players), in as few guesses as possible.
 
@@ -45,7 +45,7 @@ The number of characters in the code that are not matched _exactly_ by the guess
 
 The codebreaker would then use this information to refine each subsequent guess.
 
-See <<post_guess_endpoint,`POST /codebreaker/codes/{codeId}/guesses`>> for details on submitting a guess to this service, and the information returned by the service.
+See <<post_guess_endpoint,`POST /codebreaker/games/{gameId}/guesses`>> for details on submitting a guess to this service, and the information returned by the service.
 
 ==== End of play
 
@@ -53,21 +53,21 @@ The game ends when the codebreaker successfully guesses the code.
 
 == Service endpoints
 
-[[post_code_endpoint]]
-=== Create code (start game)
+[[post_game_endpoint]]
+=== Generate code & start game
 
 ==== Request
 
-`POST /codebreaker/codes`
+`POST /codebreaker/games`
 
-Starts a new game by generating a code using the setting specified in the request body.
+Starts a new game by generating a code using the properties specified in the request body.
 
 ===== Body
 
 |===
 |Type|Description
 
-|<<code_post_schema,`Code`>>
+|<<game_post_schema,`Game`>>
 |Code generation settings.
 
 |===
@@ -78,8 +78,8 @@ Starts a new game by generating a code using the setting specified in the reques
 |Status|Body|Description
 
 |201 Created
-|<<code_get_schema,`Code`>>
-|Code generated successfully.
+|<<game_get_schema,`Game`>>
+|Code generated & game started successfully.
 |400 Bad Request
 |<<error_schema,`Error`>>
 |Invalid code length or character pool.
@@ -90,23 +90,23 @@ Starts a new game by generating a code using the setting specified in the reques
 
 ===== Request
 
-include::{snippets}/code/post-valid/http-request.adoc[]
+include::{snippets}/games/post-valid/http-request.adoc[]
 
 ===== Response
 
-include::{snippets}/code/post-valid/http-response.adoc[]
+include::{snippets}/games/post-valid/http-response.adoc[]
 
-=== List codes
+=== List games
 
 ==== Request
 
-`GET /codebreaker/codes`
+`GET /codebreaker/games`
 
-Returns a subset of codes (all, unsolved, or solved), in descending order of creation date (i.e. most recently created first).
+Returns a subset of games (all, unsolved, or solved), in descending order of creation date (i.e. most recently created first).
 
 ===== Query parameters
 
-include::{snippets}/code/list-all/request-parameters.adoc[]
+include::{snippets}/games/list-all/request-parameters.adoc[]
 
 ==== Responses
 
@@ -114,7 +114,7 @@ include::{snippets}/code/list-all/request-parameters.adoc[]
 |Status|Body|Description
 
 |200 OK
-|<<code_get_schema,`Code[]`>>
+|<<game_get_schema,`Game[]`>>
 |Specified subset queried & returned successfully.
 |400 Bad Request
 |<<error_schema,`Error`>>
@@ -122,37 +122,37 @@ include::{snippets}/code/list-all/request-parameters.adoc[]
 
 |===
 
-==== Example 1: All codes
+==== Example 1: All games
 
 ===== Request
 
-include::{snippets}/code/list-all/http-request.adoc[]
+include::{snippets}/games/list-all/http-request.adoc[]
 
 ===== Response
 
-include::{snippets}/code/list-all/http-response.adoc[]
+include::{snippets}/games/list-all/http-response.adoc[]
 
-==== Example 2: Unsolved codes
+==== Example 2: Unsolved games
 
 ===== Request
 
-include::{snippets}/code/list-unsolved/http-request.adoc[]
+include::{snippets}/games/list-unsolved/http-request.adoc[]
 
 ===== Response
 
-include::{snippets}/code/list-unsolved/http-response.adoc[]
+include::{snippets}/games/list-unsolved/http-response.adoc[]
 
-=== Get a single code
+=== Get a single game
 
 ==== Request
 
-`GET /codebreaker/codes/{codeId}`
+`GET /codebreaker/games/{gameId}`
 
-Returns the code with the unique identifier `codeId`.
+Returns the game with the unique identifier `gameId`.
 
 ===== Path parameters
 
-include::{snippets}/code/get-valid/path-parameters.adoc[]
+include::{snippets}/games/get-valid/path-parameters.adoc[]
 
 ==== Responses
 
@@ -160,11 +160,11 @@ include::{snippets}/code/get-valid/path-parameters.adoc[]
 |Status|Body|Description
 
 |200 OK
-|<<code_get_schema,`Code`>>
-|Specified code returned.
+|<<game_get_schema,`Game`>>
+|Specified game returned.
 |404 Not Found
 |<<error_schema,`Error`>>
-|No code exists with an `id` equal to the specified `codeId`.
+|No game exists with an `id` equal to the specified `gameId`.
 
 |===
 
@@ -172,23 +172,23 @@ include::{snippets}/code/get-valid/path-parameters.adoc[]
 
 ===== Request
 
-include::{snippets}/code/get-valid/http-request.adoc[]
+include::{snippets}/games/get-valid/http-request.adoc[]
 
 ===== Response
 
-include::{snippets}/code/get-valid/http-response.adoc[]
+include::{snippets}/games/get-valid/http-response.adoc[]
 
-=== Delete a code (and its guesses)
+=== Delete a game (and its guesses)
 
 ==== Request
 
-`DELETE /codebreaker/codes/{codeId}`
+`DELETE /codebreaker/games/{gameId}`
 
-Deletes the code (and all related guesses) with the unique identifier `codeId`.
+Deletes the game (and all related guesses) with the unique identifier `gameId`.
 
 ===== Path parameters
 
-include::{snippets}/code/get-valid/path-parameters.adoc[]
+include::{snippets}/games/get-valid/path-parameters.adoc[]
 
 ==== Responses
 
@@ -197,10 +197,10 @@ include::{snippets}/code/get-valid/path-parameters.adoc[]
 
 |204 No Content
 |_(none)_
-|Specified code deleted.
+|Specified game deleted.
 |404 Not Found
 |<<error_schema,`Error`>>
-|No code exists with an `id` equal to the specified `codeId`.
+|No game exists with an `id` equal to the specified `gameId`.
 
 |===
 
@@ -208,24 +208,24 @@ include::{snippets}/code/get-valid/path-parameters.adoc[]
 
 ===== Request
 
-include::{snippets}/code/delete-valid/http-request.adoc[]
+include::{snippets}/games/delete-valid/http-request.adoc[]
 
 ===== Response
 
-include::{snippets}/code/delete-valid/http-response.adoc[]
+include::{snippets}/games/delete-valid/http-response.adoc[]
 
 [[post_guess_endpoint]]
 === Submit a guess
 
 ==== Request
 
-`POST /codebreaker/codes/{codeId}/guesses`
+`POST /codebreaker/games/{gameId}/guesses`
 
-Submits a guess against the code specified by `codeId`.
+Submits a guess against the game specified by `gameId`.
 
 ===== Path parameters
 
-include::{snippets}/guess/post-valid/path-parameters.adoc[]
+include::{snippets}/games/post-valid/path-parameters.adoc[]
 
 ===== Body
 
@@ -250,7 +250,7 @@ include::{snippets}/guess/post-valid/path-parameters.adoc[]
 |Length of guess doesn't match code length.
 |404 Not Found
 |<<error_schema,`Error`>>
-|No code exists with an `id` equal to the specified `codeId`.
+|No game exists with an `id` equal to the specified `gameId`.
 
 |===
 
@@ -258,23 +258,23 @@ include::{snippets}/guess/post-valid/path-parameters.adoc[]
 
 ===== Request
 
-include::{snippets}/guess/post-valid/http-request.adoc[]
+include::{snippets}/guesses/post-valid/http-request.adoc[]
 
 ===== Response
 
-include::{snippets}/guess/post-valid/http-response.adoc[]
+include::{snippets}/guesses/post-valid/http-response.adoc[]
 
-=== List guesses for a code
+=== List guesses for a game
 
 ==== Request
 
-`GET /codebreaker/codes/{codeId}/guesses`
+`GET /codebreaker/games/{gameId}/guesses`
 
-Retrieves all guesses submitted against the code specified by `codeId`.
+Retrieves all guesses submitted in the game specified by `gameId`.
 
 ===== Path parameters
 
-include::{snippets}/guess/list-valid/path-parameters.adoc[]
+include::{snippets}/guesses/list-valid/path-parameters.adoc[]
 
 ==== Responses
 
@@ -283,10 +283,10 @@ include::{snippets}/guess/list-valid/path-parameters.adoc[]
 
 |200 OK
 |<<guess_get_schema,`Guess[]`>>
-|Guesses associated with specified code queried & returned successfully.
+|Guesses associated with specified game queried & returned successfully.
 |404 Not Found
 |<<error_schema,`Error`>>
-|No code exists with an `id` equal to the specified `codeId`.
+|No game exists with an `id` equal to the specified `gameId`.
 
 |===
 
@@ -294,23 +294,23 @@ include::{snippets}/guess/list-valid/path-parameters.adoc[]
 
 ===== Request
 
-include::{snippets}/guess/list-valid/http-request.adoc[]
+include::{snippets}/guesses/list-valid/http-request.adoc[]
 
 ===== Response
 
-include::{snippets}/guess/list-valid/http-response.adoc[]
+include::{snippets}/guesses/list-valid/http-response.adoc[]
 
 === Get a single guess
 
 ==== Request
 
-`GET /codebreaker/codes/{codeId}/guesses/{guessId}`
+`GET /codebreaker/games/{gameId}/guesses/{guessId}`
 
-Returns the guess with the unique identifier `guessId` submitted against the code identified by `codeId`.
+Returns the guess with the unique identifier `guessId` submitted in the game identified by `gameId`.
 
 ===== Path parameters
 
-include::{snippets}/guess/get-valid/path-parameters.adoc[]
+include::{snippets}/guesses/get-valid/path-parameters.adoc[]
 
 ==== Responses
 
@@ -322,7 +322,7 @@ include::{snippets}/guess/get-valid/path-parameters.adoc[]
 |Specified guess returned.
 |404 Not Found
 |<<error_schema,`Error`>>
-|No code exists with an `id` equal to the specified `codeId`, no guess identified by `guessId` exists, or guess identified by `guessId` is not associated with code identified by `codeId`.
+|No game exists with an `id` equal to the specified `gameId`, no guess identified by `guessId` exists, or guess identified by `guessId` is not associated with game identified by `gameId`.
 
 |===
 
@@ -330,26 +330,26 @@ include::{snippets}/guess/get-valid/path-parameters.adoc[]
 
 ===== Request
 
-include::{snippets}/guess/get-valid/http-request.adoc[]
+include::{snippets}/guesses/get-valid/http-request.adoc[]
 
 ===== Response
 
-include::{snippets}/guess/get-valid/http-response.adoc[]
+include::{snippets}/guesses/get-valid/http-response.adoc[]
 
 == Schemas
 
-[[code_schema]]
-=== `Code`
+[[game_schema]]
+=== `Game`
 
-[[code_post_schema]]
+[[game_post_schema]]
 ==== `POST` request body
 
-include::{snippets}/code/post-valid/request-fields.adoc[]
+include::{snippets}/games/post-valid/request-fields.adoc[]
 
-[[code_get_schema]]
+[[game_get_schema]]
 ==== `GET` & `POST` response body
 
-include::{snippets}/code/get-valid/response-fields.adoc[]
+include::{snippets}/games/get-valid/response-fields.adoc[]
 
 [[guess_schema]]
 === `Guess`
@@ -357,17 +357,17 @@ include::{snippets}/code/get-valid/response-fields.adoc[]
 [[guess_post_schema]]
 ==== `POST` request body
 
-include::{snippets}/guess/post-valid/request-fields.adoc[]
+include::{snippets}/guesses/post-valid/request-fields.adoc[]
 
 [[guess_get_schema]]
 ==== `GET` & `POST` response body
 
-include::{snippets}/guess/get-valid/response-fields.adoc[]
+include::{snippets}/guesses/get-valid/response-fields.adoc[]
 
 [[error_schema]]
 === `Error`
 
-include::{snippets}/code/post-invalid/response-fields.adoc[]
+include::{snippets}/games/post-invalid/response-fields.adoc[]
 
 [[license_notices]]
 == Copyrights and licenses
@@ -375,7 +375,7 @@ include::{snippets}/code/post-invalid/response-fields.adoc[]
 [discrete]
 === Codebreaker
 
-(C) 2021 CNM Ingenuity, Inc.
+(C) 2022 CNM Ingenuity, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

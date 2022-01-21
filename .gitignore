@@ -61,14 +61,11 @@ HELP.md
 
 ### Derby ###
 
-# - data directory
-/codebreaker-db/
+# - database directory
+/db/
 
 # - log file
 derby.log
-
-### H2 ###
-/codebreaker-h2*
 
 ### Floobits ###
 
