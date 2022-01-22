@@ -28,4 +28,4 @@ server:
 schedule:
   cron: 0 0 0 * * ?
   zone: UTC
-  stale-game-days: 30
+  stale-game-days: 14

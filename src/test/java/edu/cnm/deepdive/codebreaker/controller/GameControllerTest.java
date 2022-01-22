@@ -282,6 +282,9 @@ class GameControllerTest {
     game.setLength(4);
     gameService.add(game);
     String key = stringifier.toString(game.getExternalKey());
+    Guess guess = new Guess();
+    guess.setText("FEDC");
+    guessService.add(game, guess);
     mockMvc
         .perform(
             get(SINGLE_GAME_PATH, contextPathPart, key)
@@ -346,7 +349,7 @@ class GameControllerTest {
   static List<ParameterDescriptor> getPathVariables() {
     return List.of(
         parameterWithName("gameId")
-            .description("Unique identifier of game."),
+            .description("Unique identifier of game resource."),
         parameterWithName("contextPathPart")
             .ignored()
     );
@@ -365,7 +368,7 @@ class GameControllerTest {
     return List.of(
         fieldWithPath("pool")
             .description(
-                "Pool of available characters for code. Duplicated characters will be ignored. Null characters are not allowed.")
+                "Pool of available characters for code and guesses. Duplicated characters will be ignored. Null or unassigned characters (i.e. code point values not mapped to a Unicode character) are not allowed.")
             .type(JsonFieldType.STRING),
         fieldWithPath("length")
             .description("Length (in characters) of generated code. Valid range is 1 to 20.")
@@ -382,7 +385,7 @@ class GameControllerTest {
             .description("Timestamp of code creation (start of game).")
             .type(JsonFieldType.STRING),
         fieldWithPath("pool")
-            .description("Pool of available characters for code.")
+            .description("Pool of available characters for code (and guesses).")
             .type(JsonFieldType.STRING),
         fieldWithPath("length")
             .description("Length (in characters) of generated code.")
@@ -395,17 +398,17 @@ class GameControllerTest {
             .type(JsonFieldType.BOOLEAN),
         fieldWithPath("href")
             .description(
-                "URL of code resource, usable in HTTP GET requests.")
+                "URL of game resource, usable in HTTP `GET` requests.")
             .type(JsonFieldType.STRING),
         fieldWithPath("text")
             .description(
-                "Text of secret code. This is only included for games that have been solved.")
+                "Text of secret code. This is only included in responses for completed (solved) games.")
             .type(JsonFieldType.STRING)
             .optional(),
         fieldWithPath("guesses")
             .description(
-                "Array of guesses submitted in this the game. This is only included when retrieving a single game.")
-            .type(JsonFieldType.ARRAY)
+                "Array of guesses submitted in this the game. This is only included in the `GET` response for a single game resource.")
+            .type("Guess[]")
             .optional()
     );
   }

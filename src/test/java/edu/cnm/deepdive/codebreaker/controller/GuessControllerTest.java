@@ -252,7 +252,7 @@ class GuessControllerTest {
     Collections.addAll(
         fields,
         parameterWithName("guessId")
-            .description("Unique identifier of guess.")
+            .description("Unique identifier of guess resource.")
     );
     return fields;
   }
@@ -278,17 +278,17 @@ class GuessControllerTest {
             .type(JsonFieldType.STRING),
         fieldWithPath("exactMatches")
             .description(
-                "Count of characters in the guess that are in the same positions in the code.")
+                "Count of characters in the guess that are in the same positions in the secret code.")
             .type(JsonFieldType.NUMBER),
         fieldWithPath("nearMatches")
             .description(
-                "Count of characters in the guess that are in code, but not in the same positions.")
+                "Count of characters in the guess that are in secret code, but not in the same positions.")
             .type(JsonFieldType.NUMBER),
         fieldWithPath("solution")
-            .description("Flag indicating whether this guess exacly matches the code.")
+            .description("Flag indicating whether this guess exacly matches the secret code.")
             .type(JsonFieldType.BOOLEAN),
         fieldWithPath("href")
-            .description("URL of code resource, usable in HTTP GET requests.")
+            .description("URL of guess resource, usable in HTTP `GET` requests.")
             .type(JsonFieldType.STRING)
     );
   }

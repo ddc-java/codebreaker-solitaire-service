@@ -54,13 +54,13 @@ The game ends when the codebreaker successfully guesses the code.
 == Service endpoints
 
 [[post_game_endpoint]]
-=== Generate code & start game
+=== Start new game
 
 ==== Request
 
 `POST /codebreaker/games`
 
-Starts a new game by generating a code using the properties specified in the request body.
+Starts a new game, randomly generating a secret code using the properties specified in the request body.
 
 ===== Body
 
@@ -102,7 +102,9 @@ include::{snippets}/games/post-valid/http-response.adoc[]
 
 `GET /codebreaker/games`
 
-Returns a subset of games (all, unsolved, or solved), in descending order of creation date (i.e. most recently created first).
+Returns a subset of games (all, in-progress/unsolved, or completed/solved), in descending order of creation date (i.e. most recently created first).
+
+Note that inactive games are periodically removed from the database. Currently, inactive games are those which---regardless of whether they have been completed (solved)---have had no guesses submitted in the most recent 14 days. Thus, responses produced by the Codebreaker service for the `GET` request documented here will not include such games.
 
 ===== Query parameters
 
@@ -132,7 +134,9 @@ include::{snippets}/games/list-all/http-request.adoc[]
 
 include::{snippets}/games/list-all/http-response.adoc[]
 
-==== Example 2: Unsolved games
+==== Example 2: In-progress games
+
+An in-progress (unsolved) game is one in which no guess that has been submitted so far matches the secret code exactly.
 
 ===== Request
 
@@ -141,6 +145,18 @@ include::{snippets}/games/list-unsolved/http-request.adoc[]
 ===== Response
 
 include::{snippets}/games/list-unsolved/http-response.adoc[]
+
+==== Example 3: Completed games
+
+A completed (solved) game is one in which a guess exactly matching the secret code has been successfully submitted.
+
+===== Request
+
+include::{snippets}/games/list-solved/http-request.adoc[]
+
+===== Response
+
+include::{snippets}/games/list-solved/http-response.adoc[]
 
 === Get a single game
 
@@ -178,7 +194,7 @@ include::{snippets}/games/get-valid/http-request.adoc[]
 
 include::{snippets}/games/get-valid/http-response.adoc[]
 
-=== Delete a game (and its guesses)
+=== Delete a game
 
 ==== Request
 
@@ -225,7 +241,7 @@ Submits a guess against the game specified by `gameId`.
 
 ===== Path parameters
 
-include::{snippets}/games/post-valid/path-parameters.adoc[]
+include::{snippets}/guesses/post-valid/path-parameters.adoc[]
 
 ===== Body
 

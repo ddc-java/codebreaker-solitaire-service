@@ -19,16 +19,13 @@ import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.Inval
 import edu.cnm.deepdive.codebreaker.model.dao.GameRepository;
 import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.NonNull;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 /**
@@ -52,9 +49,6 @@ public class GameService {
   private final GameRepository gameRepository;
   private final Random rng;
 
-  @Value("${schedule.stale-game-days}")
-  private int staleCodeDays;
-
   /**
    * Initializes the service with a {@link GameRepository} and {@link Random} (i.e. a source of
    * randomness).
@@ -66,13 +60,6 @@ public class GameService {
   public GameService(GameRepository gameRepository, Random rng) {
     this.gameRepository = gameRepository;
     this.rng = rng;
-  }
-
-  @Scheduled(cron = "${schedule.cron}", zone = "${schedule.zone}")
-  public void cleanStaleGames() {
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.DAY_OF_MONTH, -staleCodeDays);
-    gameRepository.deleteAll(gameRepository.findAllStale(calendar.getTime()));
   }
 
   /**
