@@ -6,7 +6,7 @@ v{projectVersion}
 :icons: font
 :source-highlighter: highlightjs
 :toc: left
-:toclevels: 3
+:toclevels: 4
 :sectlinks:
 
 [[codebreaker_overview]]
@@ -51,18 +51,36 @@ See <<post_guess_endpoint,`POST /codebreaker/games/{gameId}/guesses`>> for detai
 
 The game ends when the codebreaker successfully guesses the code.
 
-== Service endpoints
+== Service
+
+=== Overview
+
+The Codebreaker Solitaire service implements the codemaker role as a RESTful web service, with endpoints allowing a client (in the codebreaker role) to start, query, and delete games, and to submit and query guesses.
+
+=== Basic specifications
+
+* The service does not require authentication or an API key.
+
+* All requests that include body content are expected to send that content as JSON, accompanied by the `Content-type: application/json` header.
+
+* If the request includes an `Accept` header, it must include `application/json` in the list of acceptable content types.
+
+* All non-empty response bodies returned by the service are also JSON, also with the `Content-type: application/json` header.
+
+* Every 24 hours, inactive games are removed from the database. An inactive game is defined as one which has had no guesses submitted in the last 14 days.
+
+=== Endpoints
 
 [[post_game_endpoint]]
-=== Start new game
+==== Start new game
 
-==== Request
+===== Request
 
 `POST /codebreaker/games`
 
 Starts a new game, randomly generating a secret code using the properties specified in the request body.
 
-===== Body
+====== Body
 
 |===
 |Type|Description
@@ -72,7 +90,7 @@ Starts a new game, randomly generating a secret code using the properties specif
 
 |===
 
-==== Responses
+===== Responses
 
 |===
 |Status|Body|Description
@@ -86,19 +104,19 @@ Starts a new game, randomly generating a secret code using the properties specif
 
 |===
 
-==== Example
+===== Example
 
-===== Request
+====== Request
 
 include::{snippets}/games/post-valid/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/games/post-valid/http-response.adoc[]
 
-=== List games
+==== List games
 
-==== Request
+===== Request
 
 `GET /codebreaker/games`
 
@@ -106,11 +124,11 @@ Returns a subset of games (all, in-progress/unsolved, or completed/solved), in d
 
 Note that inactive games are periodically removed from the database. Currently, inactive games are those which---regardless of whether they have been completed (solved)---have had no guesses submitted in the most recent 14 days. Thus, responses produced by the Codebreaker service for the `GET` request documented here will not include such games.
 
-===== Query parameters
+====== Query parameters
 
 include::{snippets}/games/list-all/request-parameters.adoc[]
 
-==== Responses
+===== Responses
 
 |===
 |Status|Body|Description
@@ -124,43 +142,43 @@ include::{snippets}/games/list-all/request-parameters.adoc[]
 
 |===
 
-==== Example 1: All games
+===== Example 1: All
 
-===== Request
+====== Request
 
 include::{snippets}/games/list-all/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/games/list-all/http-response.adoc[]
 
-==== Example 2: In-progress games
+===== Example 2: In-progress
 
-An in-progress (unsolved) game is one in which no guess that has been submitted so far matches the secret code exactly.
+An in-progress (unsolved) game is one in which no guess that matches the secret code exactly has yet been submitted.
 
-===== Request
+====== Request
 
 include::{snippets}/games/list-unsolved/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/games/list-unsolved/http-response.adoc[]
 
-==== Example 3: Completed games
+===== Example 3: Completed
 
 A completed (solved) game is one in which a guess exactly matching the secret code has been successfully submitted.
 
-===== Request
+====== Request
 
 include::{snippets}/games/list-solved/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/games/list-solved/http-response.adoc[]
 
-=== Get a single game
+==== Get a single game
 
-==== Request
+===== Request
 
 `GET /codebreaker/games/{gameId}`
 
@@ -170,7 +188,7 @@ Returns the game with the unique identifier `gameId`.
 
 include::{snippets}/games/get-valid/path-parameters.adoc[]
 
-==== Responses
+===== Responses
 
 |===
 |Status|Body|Description
@@ -184,29 +202,29 @@ include::{snippets}/games/get-valid/path-parameters.adoc[]
 
 |===
 
-==== Example
+===== Example
 
-===== Request
+====== Request
 
 include::{snippets}/games/get-valid/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/games/get-valid/http-response.adoc[]
 
-=== Delete a game
+==== Delete a game
 
-==== Request
+===== Request
 
 `DELETE /codebreaker/games/{gameId}`
 
 Deletes the game (and all related guesses) with the unique identifier `gameId`.
 
-===== Path parameters
+====== Path parameters
 
 include::{snippets}/games/get-valid/path-parameters.adoc[]
 
-==== Responses
+===== Responses
 
 |===
 |Status|Body|Description
@@ -220,30 +238,30 @@ include::{snippets}/games/get-valid/path-parameters.adoc[]
 
 |===
 
-==== Example
+===== Example
 
-===== Request
+====== Request
 
 include::{snippets}/games/delete-valid/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/games/delete-valid/http-response.adoc[]
 
 [[post_guess_endpoint]]
-=== Submit a guess
+==== Submit a guess
 
-==== Request
+===== Request
 
 `POST /codebreaker/games/{gameId}/guesses`
 
 Submits a guess against the game specified by `gameId`.
 
-===== Path parameters
+====== Path parameters
 
 include::{snippets}/guesses/post-valid/path-parameters.adoc[]
 
-===== Body
+====== Body
 
 |===
 |Type|Description
@@ -253,7 +271,7 @@ include::{snippets}/guesses/post-valid/path-parameters.adoc[]
 
 |===
 
-==== Responses
+===== Responses
 
 |===
 |Status|Body|Description
@@ -270,29 +288,29 @@ include::{snippets}/guesses/post-valid/path-parameters.adoc[]
 
 |===
 
-==== Example
+===== Example
 
-===== Request
+====== Request
 
 include::{snippets}/guesses/post-valid/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/guesses/post-valid/http-response.adoc[]
 
-=== List guesses for a game
+==== List guesses for a game
 
-==== Request
+===== Request
 
 `GET /codebreaker/games/{gameId}/guesses`
 
 Retrieves all guesses submitted in the game specified by `gameId`.
 
-===== Path parameters
+====== Path parameters
 
 include::{snippets}/guesses/list-valid/path-parameters.adoc[]
 
-==== Responses
+===== Responses
 
 |===
 |Status|Body|Description
@@ -306,29 +324,29 @@ include::{snippets}/guesses/list-valid/path-parameters.adoc[]
 
 |===
 
-==== Example
+===== Example
 
-===== Request
+====== Request
 
 include::{snippets}/guesses/list-valid/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/guesses/list-valid/http-response.adoc[]
 
-=== Get a single guess
+==== Get a single guess
 
-==== Request
+===== Request
 
 `GET /codebreaker/games/{gameId}/guesses/{guessId}`
 
 Returns the guess with the unique identifier `guessId` submitted in the game identified by `gameId`.
 
-===== Path parameters
+====== Path parameters
 
 include::{snippets}/guesses/get-valid/path-parameters.adoc[]
 
-==== Responses
+===== Responses
 
 |===
 |Status|Body|Description
@@ -342,13 +360,13 @@ include::{snippets}/guesses/get-valid/path-parameters.adoc[]
 
 |===
 
-==== Example
+===== Example
 
-===== Request
+====== Request
 
 include::{snippets}/guesses/get-valid/http-request.adoc[]
 
-===== Response
+====== Response
 
 include::{snippets}/guesses/get-valid/http-response.adoc[]
 
