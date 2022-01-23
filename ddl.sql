@@ -1,27 +1,35 @@
 create table game
 (
-    code_id   CHAR(16) FOR BIT DATA not null,
-    created   timestamp             not null,
-    length    integer               not null check (length <= 20 AND length >= 1),
-    pool      varchar(255)          not null,
-    code_text varchar(20)           not null,
-    primary key (code_id)
+    game_id      UUID         not null,
+    created      timestamp    not null,
+    external_key UUID         not null,
+    length       integer      not null check (length <= 20 AND length >= 1),
+    pool         varchar(255) not null,
+    code_text    varchar(20)  not null,
+    primary key (game_id)
 );
 
 create table guess
 (
-    guess_id      CHAR(16) FOR BIT DATA not null,
-    created       timestamp             not null,
-    exact_matches integer               not null,
-    near_matches  integer               not null,
-    guess_text    varchar(20)           not null,
-    code_id       CHAR(16) FOR BIT DATA not null,
+    guess_id      UUID        not null,
+    created       timestamp   not null,
+    exact_matches integer     not null,
+    external_key  UUID        not null,
+    near_matches  integer     not null,
+    guess_text    varchar(20) not null,
+    game_id       UUID        not null,
     primary key (guess_id)
 );
 
-create index IDXgbgh4wcibfavyjxrg5hbrbdfq on game (created);
+create index IDXlk7h4xhf32khhkbqqlpw3h6c6 on game (created);
+
+alter table game
+    add constraint UK_h5ly13atfey58ueo3eccgihug unique (external_key);
 
 create index IDX4xl15u97wgd6b6ji19yfqgdjr on guess (created);
 
 alter table guess
-    add constraint FKwak3gf9mjwbqqrneoqv4jq78 foreign key (code_id) references game;
+    add constraint UK_91c9f1d56yrtyaj69sprv3ppx unique (external_key);
+
+alter table guess
+    add constraint FK17wrv62yn4umhcoh8y608l16d foreign key (game_id) references game;
