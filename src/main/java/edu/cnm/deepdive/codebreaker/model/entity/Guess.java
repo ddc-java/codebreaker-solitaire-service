@@ -21,10 +21,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.cnm.deepdive.codebreaker.configuration.Beans;
-import edu.cnm.deepdive.codebreaker.view.GameProjection;
 import edu.cnm.deepdive.codebreaker.view.UUIDSerializer;
 import edu.cnm.deepdive.codebreaker.view.UUIDStringifier;
 import java.net.URI;
@@ -63,7 +61,6 @@ import org.springframework.lang.NonNull;
 )
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution", "href"})
-@JsonView(GameProjection.Detailed.class)
 public class Guess {
 
   private static AtomicReference<EntityLinks> entityLinks = new AtomicReference<>();

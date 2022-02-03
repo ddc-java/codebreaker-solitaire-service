@@ -17,6 +17,7 @@ package edu.cnm.deepdive.codebreaker.controller;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import edu.cnm.deepdive.codebreaker.model.entity.Game;
+import edu.cnm.deepdive.codebreaker.view.UUIDStringifier.DecodeException;
 import java.util.Date;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -46,9 +47,12 @@ public class CodebreakerExceptionHandler {
   private static final String INVALID_LENGTH_MESSAGE = "must be an integer";
 
   /**
-   * Maps {@link NoSuchElementException} to the HTTP 404 (not found) response status.
+   * Maps instances of {@link NoSuchElementException} and {@link DecodeException} to the HTTP 404
+   * (not found) response status. The inclusion of the latter is due to the fact that the only point
+   * at which the application decodes UUIDs is on parsing path variables in a URL; thus, an error in
+   * decoding should be treated as a request for a nonexistent resource.
    */
-  @ExceptionHandler(NoSuchElementException.class)
+  @ExceptionHandler({NoSuchElementException.class, DecodeException.class})
   @ResponseStatus(value = HttpStatus.NOT_FOUND, reason = NOT_FOUND_MESSAGE)
   public void handleNotFound() {
   }
@@ -137,6 +141,7 @@ public class CodebreakerExceptionHandler {
 
   /**
    * Maps any {@link IllegalArgumentException} instances not of the {@link
+   * edu.cnm.deepdive.codebreaker.view.UUIDStringifier.DecodeException}, {@link
    * MethodArgumentNotValidException}, {@link InvalidPropertyException}, or {@link
    * MismatchedInputException} subclasses to the HTTP 400 (bad request) response status.
    */

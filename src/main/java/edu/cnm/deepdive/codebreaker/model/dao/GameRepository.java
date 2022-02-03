@@ -43,19 +43,19 @@ public interface GameRepository extends JpaRepository<Game, UUID> {
   /**
    * Queries and returns all {@link Game} instances, in descending order by creation date.
    */
-  Stream<Game> getAllByOrderByCreatedDesc();
+  Iterable<Game> getAllByOrderByCreatedDesc();
 
   /**
    * Queries and returns all solved {@link Game} instances, in descending order by creation date.
    */
   @Query("SELECT DISTINCT c FROM Guess AS g JOIN g.game c WHERE c.length = g.exactMatches ORDER BY c.created DESC")
-  Stream<Game> getAllSolvedOrderByCreatedDesc();
+  Iterable<Game> getAllSolvedOrderByCreatedDesc();
 
   /**
    * Queries and returns all unsolved {@link Game} instances, in descending order by creation date.
    */
   @Query("SELECT c FROM Game AS c WHERE NOT EXISTS (SELECT g FROM Guess AS g WHERE g.game = c AND g.exactMatches = c.length) ORDER BY c.created DESC")
-  Stream<Game> getAllUnsolvedOrderByCreatedDesc();
+  Iterable<Game> getAllUnsolvedOrderByCreatedDesc();
 
   /**
    * Queries and returns all {@link Game} instances that have no guesses recorded since the {@code

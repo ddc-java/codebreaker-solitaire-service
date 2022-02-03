@@ -58,7 +58,13 @@ public class Base64UrlStringifier implements UUIDStringifier {
    */
   @Override
   public UUID fromString(String value) throws IllegalArgumentException {
-    return asUUID(decoder.decode(value));
+    try {
+      byte[] decoded = decoder.decode(value);
+      return asUUID(decoded);
+    } catch (Throwable e) {
+      e.printStackTrace();
+      throw new DecodeException(e);
+    }
   }
 
   private byte[] asBytes(UUID uuid) {

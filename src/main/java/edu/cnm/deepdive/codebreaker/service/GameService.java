@@ -137,10 +137,10 @@ public class GameService {
    * @throws InvalidPropertyException If {@code statusString} does not match one of {@link
    *                                  Status#values()}.
    */
-  public Stream<Game> list(@NonNull String statusString) throws InvalidPropertyException {
+  public Iterable<Game> list(@NonNull String statusString) throws InvalidPropertyException {
     try {
       Status status = Status.valueOf(statusString.toUpperCase());
-      Stream<Game> selection;
+      Iterable<Game> selection;
       switch (status) {
         case ALL:
           selection = gameRepository.getAllByOrderByCreatedDesc();
@@ -152,7 +152,7 @@ public class GameService {
           selection = gameRepository.getAllSolvedOrderByCreatedDesc();
           break;
         default:
-          selection = Stream.of();
+          selection = List.of();
           break;
       }
       return selection;

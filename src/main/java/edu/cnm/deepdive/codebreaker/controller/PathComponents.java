@@ -17,7 +17,7 @@ package edu.cnm.deepdive.codebreaker.controller;
 
 class PathComponents {
 
-  static final String ID_PATTERN = "[-\\w]+";
+  static final String ID_PATTERN = "[-\\w]{22}";
   static final String GAMES_COMPONENT = "/games";
   static final String GAMES_PATH = GAMES_COMPONENT;
   static final String GAME_ID_COMPONENT = "/{gameId:" + ID_PATTERN +  "}";

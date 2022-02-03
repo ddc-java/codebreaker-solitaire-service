@@ -29,7 +29,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedR
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
-import static org.springframework.restdocs.request.RequestDocumentation.relaxedRequestParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -142,7 +141,7 @@ class GameControllerTest {
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint()),
                 relaxedRequestFields(getPostFields()),
-                relaxedResponseFields(getFlatFields())
+                relaxedResponseFields(getResponseFields())
             )
         );
   }
@@ -174,108 +173,6 @@ class GameControllerTest {
   }
 
   @Test
-  public void listGames_all() throws Exception {
-    Game game = new Game();
-    game.setPool("ABCDEF");
-    game.setLength(4);
-    gameService.add(game);
-    game = new Game();
-    game.setPool("0123456789");
-    game.setLength(5);
-    gameService.add(game);
-    game = new Game();
-    game.setPool("ROYGBIV");
-    game.setLength(6);
-    gameService.add(game);
-    Guess guess = new Guess();
-    guess.setText(game.getText());
-    guessService.add(game, guess);
-    mockMvc
-        .perform(
-            get(ALL_GAMES_PATH, contextPathPart)
-                .contextPath(contextPath)
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()", is(3)))
-        .andDo(
-            document(
-                "games/list-all",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                relaxedRequestParameters(getQueryParameters())
-            )
-        );
-  }
-
-  @Test
-  public void listGames_unsolved() throws Exception {
-    Game game = new Game();
-    game.setPool("ABCDEF");
-    game.setLength(4);
-    gameService.add(game);
-    game = new Game();
-    game.setPool("0123456789");
-    game.setLength(5);
-    gameService.add(game);
-    game = new Game();
-    game.setPool("ROYGBIV");
-    game.setLength(6);
-    gameService.add(game);
-    Guess guess = new Guess();
-    guess.setText(game.getText());
-    guessService.add(game, guess);
-    mockMvc
-        .perform(
-            get(GAMES_FILTER_PATH, contextPathPart, "UNSOLVED")
-                .contextPath(contextPath)
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()", is(2)))
-        .andDo(
-            document(
-                "games/list-unsolved",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                relaxedRequestParameters(getQueryParameters())
-            )
-        );
-  }
-
-  @Test
-  public void listGames_solved() throws Exception {
-    Game game = new Game();
-    game.setPool("ABCDEF");
-    game.setLength(4);
-    gameService.add(game);
-    game = new Game();
-    game.setPool("0123456789");
-    game.setLength(5);
-    gameService.add(game);
-    game = new Game();
-    game.setPool("ROYGBIV");
-    game.setLength(6);
-    gameService.add(game);
-    Guess guess = new Guess();
-    guess.setText(game.getText());
-    guessService.add(game, guess);
-    mockMvc
-        .perform(
-            get(GAMES_FILTER_PATH, contextPathPart, "SOLVED")
-                .contextPath(contextPath)
-        )
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()", is(1)))
-        .andDo(
-            document(
-                "games/list-solved",
-                preprocessRequest(prettyPrint()),
-                preprocessResponse(prettyPrint()),
-                relaxedRequestParameters(getQueryParameters())
-            )
-        );
-  }
-
-  @Test
   public void getGame_valid() throws Exception {
     Game game = new Game();
     game.setPool("ABCDEF");
@@ -299,7 +196,7 @@ class GameControllerTest {
                 "games/get-valid",
                 preprocessResponse(prettyPrint()),
                 pathParameters(getPathVariables()),
-                relaxedResponseFields(getFlatFields())
+                relaxedResponseFields(getResponseFields())
             )
         );
   }
@@ -376,7 +273,7 @@ class GameControllerTest {
     );
   }
 
-  private static List<FieldDescriptor> getFlatFields() {
+  private static List<FieldDescriptor> getResponseFields() {
     return List.of(
         fieldWithPath("id")
             .description("Unique identifier of the game.")
@@ -407,7 +304,7 @@ class GameControllerTest {
             .optional(),
         fieldWithPath("guesses")
             .description(
-                "Array of guesses submitted in this the game. This is only included in the `GET` response for a single game resource.")
+                "Array of guesses submitted in this game.")
             .type("Guess[]")
             .optional()
     );

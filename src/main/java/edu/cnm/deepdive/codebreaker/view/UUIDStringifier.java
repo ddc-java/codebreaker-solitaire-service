@@ -51,4 +51,49 @@ public interface UUIDStringifier {
    */
   UUID fromString(String value) throws IllegalArgumentException;
 
+  /**
+   * Represents an exception resulting from an attempt to decode a UUID from some textual input. By
+   * making this a subclass of {@link IllegalArgumentException}, we have more control over the
+   * response to a consumer as a result of such as failure.
+   */
+  class DecodeException extends IllegalArgumentException {
+
+    /**
+     * Initializes this instance without a message or cause exception specified.
+     */
+    public DecodeException() {
+    }
+
+    /**
+     * Initializes this instance with the specified {@code message}, but without a cause exception
+     * specified.
+     *
+     * @param message Explanatory text for the exception.
+     */
+    public DecodeException(String message) {
+      super(message);
+    }
+
+    /**
+     * Initializes this instance with the specified {@code message} and {@code cause} exception.
+     *
+     * @param message Explanatory text for the exception.
+     * @param cause {@link Throwable} that resulted in this exception.
+     */
+    public DecodeException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    /**
+     * Initializes this instance without a {@code message}, but with the specified {@code cause}
+     * exception.
+     *
+     * @param cause {@link Throwable} that resulted in this exception.
+     */
+    public DecodeException(Throwable cause) {
+      super(cause);
+    }
+
+  }
+
 }

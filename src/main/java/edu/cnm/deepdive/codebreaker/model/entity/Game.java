@@ -21,10 +21,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.cnm.deepdive.codebreaker.configuration.Beans;
-import edu.cnm.deepdive.codebreaker.view.GameProjection;
 import edu.cnm.deepdive.codebreaker.view.UUIDSerializer;
 import edu.cnm.deepdive.codebreaker.view.UUIDStringifier;
 import java.net.URI;
@@ -69,7 +67,6 @@ import org.springframework.lang.NonNull;
 )
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"id", "created", "pool", "length", "guessCount", "solved", "text", "href"})
-@JsonView(GameProjection.Simple.class)
 public class Game {
 
   /**
@@ -120,7 +117,6 @@ public class Game {
   @OneToMany(mappedBy = "game", fetch = FetchType.EAGER, cascade = CascadeType.ALL,
       orphanRemoval = true)
   @OrderBy("created ASC")
-  @JsonView(GameProjection.Detailed.class)
   private final List<Guess> guesses = new ArrayList<>();
 
   @Transient

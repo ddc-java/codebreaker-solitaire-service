@@ -17,23 +17,29 @@ _Codebreaker_ is a simple game of deductive reasoning---a more generalized varia
 [[play_overview]]
 == Rules of play
 
+These are the rules of play for a generalized form of _Bulls and Cows_, stated in a form suitable for playing with pencil and paper.
+
 === Players
 
-There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-paper and board game variants, players typically alternate playing these roles; in this variant, the service is always the codemaker, and the client is always the codebreaker. Thus, in its current implementation, this is a solitaire game: a client application requests generation of a game from the service, and then submits the user's guesses to the service, one at a time, displaying the response to the user.
+There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-paper and board game variants, players typically alternate playing these roles.
 
 === Sequence of play
 
-==== Start a new game
+==== _Codemaker_: Create the code
 
-A game begins when the codebreaker requests that a new code be generated, with the code length and pool of characters specified in the request.
+A game begins when the codebreaker requests that a new code be created, with specified (ore previously agreed on) length and pool of characters. The codemaker generates the code accordingly, and keeps it secret.
 
-See <<post_game_endpoint,`POST /codebreaker/games`>> for details on requesting the generation of a new code (thus starting a new game) from this service.
+==== _Codebreaker_: Crack the code
 
-==== Guessing the game
+The objective of the codebreaker in the game is to learn the secret code created by the codemaker, using as few guesses as possible.
 
-The objective of the codebreaker in the game is to guess a secret code (created by the codemaker, within parameters agreed on by both players), in as few guesses as possible.
+===== _Codebreaker_: Make a guess
 
-Each guess consists of a string of characters (which must be of the same length as the code---that is, the length specified when starting the game). When a guess is submitted, the response from the codemaker consists (primarily) of 2 numbers:
+Each guess consists of a string of characters, with length equal to that of the code, and made up only of characters found in the pool used when creating the code.
+
+===== _Codebreaker_: Evaluate the guess
+
+When a guess is submitted, the response from the codemaker consists of 2 numbers:
 
 * *Exact matches*
 +
@@ -41,21 +47,43 @@ The number of characters in the code that are matched _exactly_ by the character
 
 * *Near matches*
 +
-The number of characters in the code that are not matched _exactly_ by the guess, but that are matched by characters in the guess in non-corresponding positions.
+The number of characters in the code that aren't matched _exactly_ by the corresponding characters in the guess, but are matched by characters in the guess in non-corresponding positions.
 
-The codebreaker would then use this information to refine each subsequent guess.
+Any character, in either the code or the guess, can only be used once when counting matches. That is, a corresponding pair of characters in the code and guess that form an exact match can't be used in any near matches, and any character used in one near match can't be used in any others.
 
-See <<post_guess_endpoint,`POST /codebreaker/games/{gameId}/guesses`>> for details on submitting a guess to this service, and the information returned by the service.
+===== _Codebreaker_: Refine the guess
+
+Using the codemaker's response to the most recent guess, along with responses to any previous guesses (if any), the codebreaker refines the guess---after which the codemaker evaluates the new guess and tells the codebreaker the counts of exact and near matches, the codebreaker refines the guess, and so on.
 
 ==== End of play
 
-The game ends when the codebreaker successfully guesses the code.
+A single game ends when the codebreaker successfully guesses the code.
+
+Typically players will play multiple games, alternating roles, and keeping a tally of the total number of guesses for each player. After an agreed-on (even) number of games, the player with the lowest guess tally wins.
+
+==== Guess example
+
+Assume that the secret code is "BACD", and the codebreaker guesses "AABB".
+
+* *Exact matches*
++
+The "A" in the second position of the code is matched exactly by the corresponding "A" in the guess. No other character in the guess matches the character in the corresponding position of the code. Therefore, the number of exact matches is 1.
+
+* *Near matches*
++
+The "A" in the second position of the guess was already counted as an exact match, so neither it nor its corresponding "A" in the code can be considered in this count. As a result, the "A" in the first position of the guess _doesn't_ form a near match with an "A" in the code.
+
+The "B" in the third position of the guess _does_ form a near match with the "B" in the first position of the code. However, this means the the sole "B" in the code may noy be used in any further near matches, so the "B" in the fourth position of the guess _doesn't_ have a near match.
+
+Note that if we scanned from from right to left to look for matches, the "B" in the fourth position of the guess would have a near match with the "B" in the first position of the code, but the "B" in the third position of the guess would not have any near match. Either way, the count would be the same: 1 near match.
 
 == Service
 
 === Overview
 
-The Codebreaker Solitaire service implements the codemaker role as a RESTful web service, with endpoints allowing a client (in the codebreaker role) to start, query, and delete games, and to submit and query guesses.
+The Codebreaker Solitaire service acts as the codemaker, with endpoints allowing a client (in the codebreaker role) to start, retrieve, and delete games, and to submit and retrieve guesses.
+
+Since the service is _always_ the codemaker, and since the service provides no capabilities to compare a given codebreaker's performance against that of any other codebreaker using the service, this is best suited to solitaire gameplay: A client application would make requests of the service to start games and submit guesses on behalf of a user; an indefinite number of games could be played in this fashion, presumably with the aim of improving the user's deductive reasoning skills.
 
 === Basic specifications
 
@@ -114,69 +142,7 @@ include::{snippets}/games/post-valid/http-request.adoc[]
 
 include::{snippets}/games/post-valid/http-response.adoc[]
 
-==== List games
-
-===== Request
-
-`GET /codebreaker/games`
-
-Returns a subset of games (all, in-progress/unsolved, or completed/solved), in descending order of creation date (i.e. most recently created first).
-
-Note that inactive games are periodically removed from the database. Currently, inactive games are those which---regardless of whether they have been completed (solved)---have had no guesses submitted in the most recent 14 days. Thus, responses produced by the Codebreaker service for the `GET` request documented here will not include such games.
-
-====== Query parameters
-
-include::{snippets}/games/list-all/request-parameters.adoc[]
-
-===== Responses
-
-|===
-|Status|Body|Description
-
-|200 OK
-|<<game_get_schema,`Game[]`>>
-|Specified subset queried & returned successfully.
-|400 Bad Request
-|<<error_schema,`Error`>>
-|Invalid `status` query parameter value.
-
-|===
-
-===== Example 1: All
-
-====== Request
-
-include::{snippets}/games/list-all/http-request.adoc[]
-
-====== Response
-
-include::{snippets}/games/list-all/http-response.adoc[]
-
-===== Example 2: In-progress
-
-An in-progress (unsolved) game is one in which no guess that matches the secret code exactly has yet been submitted.
-
-====== Request
-
-include::{snippets}/games/list-unsolved/http-request.adoc[]
-
-====== Response
-
-include::{snippets}/games/list-unsolved/http-response.adoc[]
-
-===== Example 3: Completed
-
-A completed (solved) game is one in which a guess exactly matching the secret code has been successfully submitted.
-
-====== Request
-
-include::{snippets}/games/list-solved/http-request.adoc[]
-
-====== Response
-
-include::{snippets}/games/list-solved/http-response.adoc[]
-
-==== Get a single game
+==== Retrieve a game
 
 ===== Request
 
@@ -211,42 +177,6 @@ include::{snippets}/games/get-valid/http-request.adoc[]
 ====== Response
 
 include::{snippets}/games/get-valid/http-response.adoc[]
-
-==== Delete a game
-
-===== Request
-
-`DELETE /codebreaker/games/{gameId}`
-
-Deletes the game (and all related guesses) with the unique identifier `gameId`.
-
-====== Path parameters
-
-include::{snippets}/games/get-valid/path-parameters.adoc[]
-
-===== Responses
-
-|===
-|Status|Body|Description
-
-|204 No Content
-|_(none)_
-|Specified game deleted.
-|404 Not Found
-|<<error_schema,`Error`>>
-|No game exists with an `id` equal to the specified `gameId`.
-
-|===
-
-===== Example
-
-====== Request
-
-include::{snippets}/games/delete-valid/http-request.adoc[]
-
-====== Response
-
-include::{snippets}/games/delete-valid/http-response.adoc[]
 
 [[post_guess_endpoint]]
 ==== Submit a guess
@@ -298,43 +228,7 @@ include::{snippets}/guesses/post-valid/http-request.adoc[]
 
 include::{snippets}/guesses/post-valid/http-response.adoc[]
 
-==== List guesses for a game
-
-===== Request
-
-`GET /codebreaker/games/{gameId}/guesses`
-
-Retrieves all guesses submitted in the game specified by `gameId`.
-
-====== Path parameters
-
-include::{snippets}/guesses/list-valid/path-parameters.adoc[]
-
-===== Responses
-
-|===
-|Status|Body|Description
-
-|200 OK
-|<<guess_get_schema,`Guess[]`>>
-|Guesses associated with specified game queried & returned successfully.
-|404 Not Found
-|<<error_schema,`Error`>>
-|No game exists with an `id` equal to the specified `gameId`.
-
-|===
-
-===== Example
-
-====== Request
-
-include::{snippets}/guesses/list-valid/http-request.adoc[]
-
-====== Response
-
-include::{snippets}/guesses/list-valid/http-response.adoc[]
-
-==== Get a single guess
+==== Retrieve a guess
 
 ===== Request
 
@@ -369,6 +263,42 @@ include::{snippets}/guesses/get-valid/http-request.adoc[]
 ====== Response
 
 include::{snippets}/guesses/get-valid/http-response.adoc[]
+
+==== Delete a game
+
+===== Request
+
+`DELETE /codebreaker/games/{gameId}`
+
+Deletes the game (and all related guesses) with the unique identifier `gameId`.
+
+====== Path parameters
+
+include::{snippets}/games/get-valid/path-parameters.adoc[]
+
+===== Responses
+
+|===
+|Status|Body|Description
+
+|204 No Content
+|_(none)_
+|Specified game deleted.
+|404 Not Found
+|<<error_schema,`Error`>>
+|No game exists with an `id` equal to the specified `gameId`.
+
+|===
+
+===== Example
+
+====== Request
+
+include::{snippets}/games/delete-valid/http-request.adoc[]
+
+====== Response
+
+include::{snippets}/games/delete-valid/http-response.adoc[]
 
 == Schemas
 
