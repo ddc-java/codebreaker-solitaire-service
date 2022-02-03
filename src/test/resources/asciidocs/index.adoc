@@ -107,7 +107,7 @@ Since the service is _always_ the codemaker, and since the service provides no c
 
 * All requests that include body content are expected to send that content as JSON, accompanied by the `Content-type: application/json` header.
 
-* If the request includes an `Accept` header, it must include `application/json` in the list of acceptable content types.
+* If the request includes an `Accept` header, it must include `application/json`, `application/*`, or `*/*` in the list of acceptable content types.
 
 * All non-empty response bodies returned by the service are also JSON, also with the `Content-type: application/json` header.
 
