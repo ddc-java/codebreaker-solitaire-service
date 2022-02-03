@@ -24,6 +24,7 @@ import edu.cnm.deepdive.codebreaker.service.GameService.Status;
 import edu.cnm.deepdive.codebreaker.view.GameProjection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.http.HttpStatus;
@@ -75,7 +76,9 @@ public class GameController {
   @JsonView(GameProjection.Simple.class)
   public Iterable<Game> list(@RequestParam(required = false, defaultValue = "ALL") String status)
       throws InvalidPropertyException {
-    return gameService.list(status);
+    return gameService
+        .list(status)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -94,7 +97,9 @@ public class GameController {
   @JsonView(GameProjection.Simple.class)
   public ResponseEntity<Game> post(@Valid @RequestBody Game game) throws InvalidPropertyException {
     game = gameService.add(game);
-    return ResponseEntity.created(game.getHref()).body(game);
+    return ResponseEntity
+        .created(game.getHref())
+        .body(game);
   }
 
   /**
@@ -126,7 +131,9 @@ public class GameController {
         .get(gameId)
         .ifPresentOrElse(
             gameService::remove,
-            () -> {throw new NoSuchElementException();}
+            () -> {
+              throw new NoSuchElementException();
+            }
         );
   }
 

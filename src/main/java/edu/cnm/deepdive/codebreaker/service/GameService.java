@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -136,10 +137,10 @@ public class GameService {
    * @throws InvalidPropertyException If {@code statusString} does not match one of {@link
    *                                  Status#values()}.
    */
-  public Iterable<Game> list(@NonNull String statusString) throws InvalidPropertyException {
+  public Stream<Game> list(@NonNull String statusString) throws InvalidPropertyException {
     try {
       Status status = Status.valueOf(statusString.toUpperCase());
-      Iterable<Game> selection;
+      Stream<Game> selection;
       switch (status) {
         case ALL:
           selection = gameRepository.getAllByOrderByCreatedDesc();
@@ -151,7 +152,7 @@ public class GameService {
           selection = gameRepository.getAllSolvedOrderByCreatedDesc();
           break;
         default:
-          selection = List.of();
+          selection = Stream.of();
           break;
       }
       return selection;

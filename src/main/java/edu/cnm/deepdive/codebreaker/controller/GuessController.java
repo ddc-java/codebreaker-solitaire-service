@@ -98,7 +98,10 @@ public class GuessController {
     return gameService
         .get(gameId)
         .map((game) -> guessService.add(game, guess))
-        .map((g) -> ResponseEntity.created(g.getHref()).body(g))
+        .map((g) -> ResponseEntity
+            .created(g.getHref())
+            .body(g)
+        )
         .orElseThrow();
   }
 

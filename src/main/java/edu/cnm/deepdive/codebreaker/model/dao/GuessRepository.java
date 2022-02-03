@@ -27,7 +27,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface GuessRepository extends JpaRepository<Guess, UUID> {
 
-
   /**
    * Queries and returns the {@link Guess} instance (if it exists) with the specified external
    * identifier.
