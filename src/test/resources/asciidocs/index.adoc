@@ -27,7 +27,9 @@ There are 2 roles in the game: _codemaker_ and _codebreaker_. In the pencil-and-
 
 ==== _Codemaker_: Create the code
 
-A game begins when the codebreaker requests that a new code be created, with specified (ore previously agreed on) length and pool of characters. The codemaker generates the code accordingly, and keeps it secret.
+To play the game, the codemaker and codebreaker first agree on a code length and pool of characters.
+
+Next, the codemaker generates the code, using only characters in the pool (any given character in the pool may be used more than once), and keeps it secret.
 
 ==== _Codebreaker_: Crack the code
 
@@ -39,7 +41,7 @@ Each guess consists of a string of characters, with length equal to that of the 
 
 ===== _Codebreaker_: Evaluate the guess
 
-When a guess is submitted, the response from the codemaker consists of 2 numbers:
+When a guess is submitted, the codemaker compares it to the code, and responds to the codebreaker with 2 numbers:
 
 * *Exact matches*
 +
@@ -59,23 +61,37 @@ Using the codemaker's response to the most recent guess, along with responses to
 
 A single game ends when the codebreaker successfully guesses the code.
 
-Typically players will play multiple games, alternating roles, and keeping a tally of the total number of guesses for each player. After an agreed-on (even) number of games, the player with the lowest guess tally wins.
+Typically players will play multiple games, alternating roles, and keeping a tally of the total number of guesses for each player. After an agreed-upon number of games, the player with the lowest guess tally wins.
 
-==== Guess example
+=== Example game
 
-Assume that the secret code is "BACD", and the codebreaker guesses "AABB".
+==== Creating the code
 
-* *Exact matches*
-+
-The "A" in the second position of the code is matched exactly by the corresponding "A" in the guess. No other character in the guess matches the character in the corresponding position of the code. Therefore, the number of exact matches is 1.
+. The codemaker and codebreaker agree on a pool of characters of "A", "B", "C", and "D", with a code length of 3.
 
-* *Near matches*
-+
-The "A" in the second position of the guess was already counted as an exact match, so neither it nor its corresponding "A" in the code can be considered in this count. As a result, the "A" in the first position of the guess _doesn't_ form a near match with an "A" in the code.
+. The codemaker creates (randomly or otherwise) a secret code---a sequence of 3 characters, all of which must be in the pool. In this case, assume the generated secret code is "BDC".
 
-The "B" in the third position of the guess _does_ form a near match with the "B" in the first position of the code. However, this means the the sole "B" in the code may noy be used in any further near matches, so the "B" in the fourth position of the guess _doesn't_ have a near match.
+==== Cracking the code
 
-Note that if we scanned from from right to left to look for matches, the "B" in the fourth position of the guess would have a near match with the "B" in the first position of the code, but the "B" in the third position of the guess would not have any near match. Either way, the count would be the same: 1 near match.
+. For the first attempt, the codebreaker (in this example) guesses "AAA".
+
+. Since none of the characters in the guess match (exactly or nearly) characters in the code, the codemaker tells the codebreaker that there are 0 exact matches and 0 near matches.
+
+. The codebreaker now knows that the code contains no "A" characters, and guesses "BBB" for the next attempt.
+
+. The codemaker responds that the guess has 1 exact match (the "B" in the first position of the guess matches the "B" in the first position of the code), and 0 near matches. (Note that the codemaker only reports the counts, not the specific characters or positions that were included in the counts.)
+
+. The codebreaker knows that the code contains exactly 1 "B", and chooses "BCC" for the next guess.
+
+. This time, the codemaker counts 2 exact matches (the "B" in the first position and the "C" in the third position) and 0 near matches.
+
+. The codebreaker knows from the previous guess that 1 of the matches is "B"; since there are only exact matches in the current guess, the first character of the code must be "B". The code also contains exactly 1 "C", but it might be in the second or third position. Taking a chance, the codebreaker guesses "BCD".
+
+. Neither the "C" nor the "D" in the guess match the code exactly, but both count as near matches. So the codemaker reports 1 exact match ("B" in the first position) and 2 near matches ("C" and "D").
+
+. The codebreaker has figured it out now: Since the "B" in the first position is an exact match (deduced in steps 5 & 7), and there are 2 near matches, the "C" and "D" have to be swapped, for a guess of "BDC".
+
+. The codemaker examines the guess and sees that all 3 characters match the code exactly. With 3 exact matches after 5 guesses, the code has been guessed correctly, so the game is over.
 
 == Service
 
@@ -83,7 +99,7 @@ Note that if we scanned from from right to left to look for matches, the "B" in 
 
 The Codebreaker Solitaire service acts as the codemaker, with endpoints allowing a client (in the codebreaker role) to start, retrieve, and delete games, and to submit and retrieve guesses.
 
-Since the service is _always_ the codemaker, and since the service provides no capabilities to compare a given codebreaker's performance against that of any other codebreaker using the service, this is best suited to solitaire gameplay: A client application would make requests of the service to start games and submit guesses on behalf of a user; an indefinite number of games could be played in this fashion, presumably with the aim of improving the user's deductive reasoning skills.
+Since the service is _always_ the codemaker, and since the service provides no capabilities to compare a given codebreaker's performance against that of any other codebreaker using the service, it is best suited to solitaire play: A client application would make requests of the service to start games and submit guesses on behalf of a user; an indefinite number of games could be played in this fashion, presumably with the aim of improving the user's deductive reasoning skills.
 
 === Basic specifications
 
@@ -215,6 +231,9 @@ include::{snippets}/guesses/post-valid/path-parameters.adoc[]
 |404 Not Found
 |<<error_schema,`Error`>>
 |No game exists with an `id` equal to the specified `gameId`.
+|409 Conflict
+|<<error_schema,`Error`>>
+|The game with the specified `gameId` is already completed; that is, the code has been guessed correctly.
 
 |===
 
