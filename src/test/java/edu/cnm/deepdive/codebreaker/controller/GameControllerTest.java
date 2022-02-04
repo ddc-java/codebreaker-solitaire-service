@@ -287,9 +287,6 @@ class GameControllerTest {
         fieldWithPath("length")
             .description("Length (in characters) of generated code.")
             .type(JsonFieldType.NUMBER),
-        fieldWithPath("guessCount")
-            .description("Number of guesses submitted in this game.")
-            .type(JsonFieldType.NUMBER),
         fieldWithPath("solved")
             .description("Flag indicating whether code has been guessed successfully.")
             .type(JsonFieldType.BOOLEAN),

@@ -228,13 +228,6 @@ public class Game {
     return isSolved() ? text : null;
   }
 
-  /**
-   * Returns the count of guesses submitted in this game.
-   */
-  public int getGuessCount() {
-    return guesses.size();
-  }
-
   @PrePersist
   private void generateExternalKey() {
     externalKey = UUID.randomUUID();

@@ -30,7 +30,7 @@
 
   <groupId>edu.cnm.deepdive</groupId>
   <artifactId>codebreaker-solitaire-service</artifactId>
-  <version>2.0.4</version>
+  <version>3.0.0</version>
   <name>Codebreaker Solitaire Service</name>
   <description>Code generator &amp; game service</description>
 
