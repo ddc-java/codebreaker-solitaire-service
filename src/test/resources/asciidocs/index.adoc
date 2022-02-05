@@ -101,6 +101,10 @@ The Codebreaker Solitaire service acts as the codemaker, with endpoints allowing
 
 Since the service is _always_ the codemaker, and since the service provides no capabilities to compare a given codebreaker's performance against that of any other codebreaker using the service, it is best suited to solitaire play: A client application would make requests of the service to start games and submit guesses on behalf of a user; an indefinite number of games could be played in this fashion, presumably with the aim of improving the user's deductive reasoning skills.
 
+=== Disclaimer
+
+Since the service is primarily intended to play a role in the Deep Dive Curriculum, we reserve the right to change the specifications below _without warning, at any time._ This service should not be consumed by any production-level client, and is made available (as stated in the http://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0], under which the source code underlying the service is published) "on an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied."
+
 === Basic specifications
 
 * The service does not require authentication or an API key.
