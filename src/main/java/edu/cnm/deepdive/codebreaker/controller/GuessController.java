@@ -20,11 +20,13 @@ import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.GameService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
+import java.net.URI;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.ExposesResourceFor;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -71,7 +73,8 @@ public class GuessController {
    * @throws NoSuchElementException If {@code gameId} does not refer to a known {@link Game}.
    */
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-  public Iterable<Guess> list(@PathVariable UUID gameId) throws NoSuchElementException {
+  public Iterable<Guess> list(@PathVariable UUID gameId)
+      throws NoSuchElementException {
     return gameService
         .get(gameId)
         .map(Game::getGuesses)
@@ -93,15 +96,24 @@ public class GuessController {
    */
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Guess> post(@PathVariable UUID gameId, @Valid @RequestBody Guess guess)
+  public ResponseEntity<Guess> post(
+      @PathVariable UUID gameId, @Valid @RequestBody Guess guess)
       throws NoSuchElementException, MethodArgumentNotValidException, InvalidPropertyException {
     return gameService
         .get(gameId)
         .map((game) -> guessService.add(game, guess))
-        .map((g) -> ResponseEntity
-            .created(g.getHref())
-            .body(g)
-        )
+        .map((g) -> {
+          URI location = WebMvcLinkBuilder
+              .linkTo(
+                  WebMvcLinkBuilder
+                      .methodOn(GuessController.class)
+                      .get(gameId, guess.getExternalKey())
+              )
+              .toUri();
+          return ResponseEntity
+              .created(location)
+              .body(g);
+        })
         .orElseThrow();
   }
 
@@ -123,7 +135,7 @@ public class GuessController {
       throws NoSuchElementException {
     return gameService
         .get(gameId)
-        .flatMap((game) -> guessService.get(guessId))
+        .flatMap((game) -> guessService.get(game, guessId))
         .orElseThrow();
   }
 

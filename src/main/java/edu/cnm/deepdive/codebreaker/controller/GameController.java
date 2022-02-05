@@ -19,10 +19,12 @@ import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.Inval
 import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
 import edu.cnm.deepdive.codebreaker.service.GameService;
+import java.net.URI;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.hateoas.server.ExposesResourceFor;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -70,10 +72,18 @@ public class GameController {
    */
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Game> post(@Valid @RequestBody Game game) throws InvalidPropertyException {
+  public ResponseEntity<Game> post(@Valid @RequestBody Game game)
+      throws InvalidPropertyException {
     game = gameService.add(game);
+    URI location = WebMvcLinkBuilder
+        .linkTo(
+            WebMvcLinkBuilder
+                .methodOn(GameController.class)
+                .get(game.getExternalKey())
+        )
+        .toUri();
     return ResponseEntity
-        .created(game.getHref())
+        .created(location)
         .body(game);
   }
 

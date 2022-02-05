@@ -22,13 +22,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import edu.cnm.deepdive.codebreaker.configuration.Beans;
 import edu.cnm.deepdive.codebreaker.view.UUIDSerializer;
-import edu.cnm.deepdive.codebreaker.view.UUIDStringifier;
-import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -37,17 +33,13 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.lang.NonNull;
 
 /**
@@ -62,9 +54,6 @@ import org.springframework.lang.NonNull;
 @JsonInclude(Include.NON_NULL)
 @JsonPropertyOrder({"id", "created", "text", "exactMatches", "nearMatches", "solution", "href"})
 public class Guess {
-
-  private static AtomicReference<EntityLinks> entityLinks = new AtomicReference<>();
-  private static AtomicReference<UUIDStringifier> stringifier = new AtomicReference<>();
 
   @NonNull
   @Id
@@ -105,10 +94,6 @@ public class Guess {
   @Column(nullable = false, updatable = false)
   @JsonProperty(access = Access.READ_ONLY)
   private int nearMatches;
-
-  @Transient
-  @JsonProperty(access = Access.READ_ONLY)
-  private URI href;
 
   /**
    * Returns the primary key and (internal) unique identifier of this guess.
@@ -198,13 +183,6 @@ public class Guess {
   }
 
   /**
-   * Returns the {@link URI} that can be used to reference this instance via a HTTP GET request.
-   */
-  public URI getHref() {
-    return href;
-  }
-
-  /**
    * Returns a {@code boolean} flag indicating whether this guess matches the code exactly.
    */
   public boolean isSolution() {
@@ -214,19 +192,6 @@ public class Guess {
   @PrePersist
   private void generateExternalKey() {
     externalKey = UUID.randomUUID();
-  }
-
-  @PostLoad
-  @PostPersist
-  private void updateTransients() {
-    entityLinks.compareAndSet(null, Beans.bean(EntityLinks.class));
-    stringifier.compareAndSet(null, Beans.bean(UUIDStringifier.class));
-    UUIDStringifier stringifier = Guess.stringifier.get();
-    href = entityLinks
-        .get()
-        .linkFor(Guess.class, stringifier.toString(game.getExternalKey()))
-        .slash(stringifier.toString(externalKey))
-        .toUri();
   }
 
 }

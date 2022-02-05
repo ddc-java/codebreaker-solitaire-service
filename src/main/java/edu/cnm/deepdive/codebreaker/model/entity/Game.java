@@ -22,15 +22,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import edu.cnm.deepdive.codebreaker.configuration.Beans;
 import edu.cnm.deepdive.codebreaker.view.UUIDSerializer;
-import edu.cnm.deepdive.codebreaker.view.UUIDStringifier;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,8 +37,6 @@ import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
-import javax.persistence.PostLoad;
-import javax.persistence.PostPersist;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -52,7 +47,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.lang.NonNull;
 
 /**
@@ -74,9 +68,6 @@ public class Game {
    */
   public static final int MAX_CODE_LENGTH = 20;
   private static final int MAX_POOL_LENGTH = 255;
-
-  private static AtomicReference<EntityLinks> entityLinks = new AtomicReference<>();
-  private static AtomicReference<UUIDStringifier> stringifier = new AtomicReference<>();
 
   @NonNull
   @Id
@@ -118,10 +109,6 @@ public class Game {
       orphanRemoval = true)
   @OrderBy("created ASC")
   private final List<Guess> guesses = new ArrayList<>();
-
-  @Transient
-  @JsonProperty(access = Access.READ_ONLY)
-  private URI href;
 
   /**
    * Returns the primary key and (internal) unique identifier of this code.
@@ -204,13 +191,6 @@ public class Game {
   }
 
   /**
-   * Returns the {@link URI} that can be used to reference this instance via a HTTP GET request.
-   */
-  public URI getHref() {
-    return href;
-  }
-
-  /**
    * Returns a {@code boolean} flag indicating whether the code has been guessed successfully.
    */
   public boolean isSolved() {
@@ -231,17 +211,6 @@ public class Game {
   @PrePersist
   private void generateExternalKey() {
     externalKey = UUID.randomUUID();
-  }
-
-  @PostLoad
-  @PostPersist
-  private void updateTransients() {
-    entityLinks.compareAndSet(null, Beans.bean(EntityLinks.class));
-    stringifier.compareAndSet(null, Beans.bean(UUIDStringifier.class));
-    href = entityLinks
-        .get()
-        .linkForItemResource(Game.class, stringifier.get().toString(externalKey))
-        .toUri();
   }
 
 }

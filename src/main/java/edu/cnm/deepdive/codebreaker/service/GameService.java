@@ -18,13 +18,10 @@ package edu.cnm.deepdive.codebreaker.service;
 import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.InvalidPropertyException;
 import edu.cnm.deepdive.codebreaker.model.dao.GameRepository;
 import edu.cnm.deepdive.codebreaker.model.entity.Game;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -43,9 +40,6 @@ public class GameService {
   private static final String POOL_PROPERTY = "pool";
   private static final String INVALID_CHARACTER_MESSAGE =
       "must not contain whitespace, control, or undefined characters";
-  private static final String STATUS_PROPERTY = "status";
-  private static final String INVALID_STATUS_MESSAGE =
-      String.format("must be one of %s (case-insensitive).", Arrays.toString(Status.values()));
 
   private final GameRepository gameRepository;
   private final Random rng;
@@ -126,43 +120,7 @@ public class GameService {
   }
 
   /**
-   * Returns a subset of {@link Game} instances from the collection, filtered by {@code
-   * statusString}. If {@code statusString}, when converted to uppercase, matches one of the
-   * enumerated {@link Status#values() values} of {@link Status}, the corresponding subset is
-   * returned; otherwise {@link IllegalArgumentException} is thrown.
-   *
-   * @param statusString Filter keyword, matching (when converted to uppercase) one of {@link
-   *                     Status#values()}.
-   * @return Subset of codes collection, filtered by {@code statusString}.
-   * @throws InvalidPropertyException If {@code statusString} does not match one of {@link
-   *                                  Status#values()}.
-   */
-  public Iterable<Game> list(@NonNull String statusString) throws InvalidPropertyException {
-    try {
-      Status status = Status.valueOf(statusString.toUpperCase());
-      Iterable<Game> selection;
-      switch (status) {
-        case ALL:
-          selection = gameRepository.getAllByOrderByCreatedDesc();
-          break;
-        case UNSOLVED:
-          selection = gameRepository.getAllUnsolvedOrderByCreatedDesc();
-          break;
-        case SOLVED:
-          selection = gameRepository.getAllSolvedOrderByCreatedDesc();
-          break;
-        default:
-          selection = List.of();
-          break;
-      }
-      return selection;
-    } catch (IllegalArgumentException e) {
-      throw new InvalidPropertyException(STATUS_PROPERTY, INVALID_STATUS_MESSAGE);
-    }
-  }
-
-  /**
-   * Removes all codes from the collection.
+   * Removes all games from the collection.
    */
   public void clear() {
     gameRepository.deleteAll();
@@ -172,26 +130,6 @@ public class GameService {
     return !Character.isDefined(codePoint)
         || Character.isWhitespace(codePoint)
         || Character.isISOControl(codePoint);
-  }
-
-  /**
-   * Allowed filter values for retrieving {@link Game} subsets from the collection.
-   */
-  public enum Status {
-
-    /**
-     * All codes, whether solved or unsolved.
-     */
-    ALL,
-    /**
-     * Unsolved codes only.
-     */
-    UNSOLVED,
-    /**
-     * Solved codes only.
-     */
-    SOLVED
-
   }
 
 }

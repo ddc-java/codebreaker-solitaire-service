@@ -109,9 +109,9 @@ public class GuessService {
    * @return {@link Optional Optional&lt;Guess&gt;} containing {@link Guess} referenced by {@code
    * externalKey} (if it exists).
    */
-  public Optional<Guess> get(@NonNull UUID externalKey) {
+  public Optional<Guess> get(@NonNull Game game, @NonNull UUID externalKey) {
     try {
-      return guessRepository.findByExternalKey(externalKey);
+      return guessRepository.findByGameAndExternalKey(game, externalKey);
     } catch (IllegalArgumentException e) {
       return Optional.empty();
     }

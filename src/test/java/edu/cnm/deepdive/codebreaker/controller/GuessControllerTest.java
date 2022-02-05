@@ -286,10 +286,7 @@ class GuessControllerTest {
             .type(JsonFieldType.NUMBER),
         fieldWithPath("solution")
             .description("Flag indicating whether this guess exacly matches the secret code.")
-            .type(JsonFieldType.BOOLEAN),
-        fieldWithPath("href")
-            .description("URL of guess resource, usable in HTTP `GET` requests.")
-            .type(JsonFieldType.STRING)
+            .type(JsonFieldType.BOOLEAN)
     );
   }
 

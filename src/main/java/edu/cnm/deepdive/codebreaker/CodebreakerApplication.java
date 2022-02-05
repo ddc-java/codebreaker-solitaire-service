@@ -26,7 +26,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * href="https://en.wikipedia.org/wiki/Bulls_and_Cows">Bulls and Cows</a>.
  */
 @SpringBootApplication
-@EnableHypermediaSupport(type = {HypermediaType.HAL})
 @EnableScheduling
 public class CodebreakerApplication {
 
