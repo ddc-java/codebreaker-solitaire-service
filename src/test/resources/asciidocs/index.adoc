@@ -103,7 +103,8 @@ Since the service is _always_ the codemaker, and since the service provides no c
 
 === Disclaimer
 
-Since the service is primarily intended to play a role in the Deep Dive Curriculum, we reserve the right to change the specifications below _without warning, at any time._ This service should not be consumed by any production-level client, and is made available (as stated in the http://www.apache.org/licenses/LICENSE-2.0[Apache License 2.0], under which the source code underlying the service is published) "on an 'AS IS' BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied."
+Since the service is developed and maintained for use in the Deep Dive
+Coding curriculum, we reserve the right to change the specifications below _without warning, at any time._ This service is intended to be used for educational purposes only, and *is made available on an as-is basis, without warranties or conditions of any kind, either express or implied*.
 
 === Basic specifications
 
@@ -357,7 +358,7 @@ include::{snippets}/guesses/get-valid/response-fields.adoc[]
 include::{snippets}/games/post-invalid/response-fields.adoc[]
 
 [[license_notices]]
-== Credit, copyrights, and licenses
+== Credits, copyrights, and licenses
 
 [discrete]
 === Codebreaker
