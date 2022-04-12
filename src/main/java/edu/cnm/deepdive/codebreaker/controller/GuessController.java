@@ -18,6 +18,8 @@ package edu.cnm.deepdive.codebreaker.controller;
 import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.InvalidPropertyException;
 import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
+import edu.cnm.deepdive.codebreaker.service.AbstractGameService;
+import edu.cnm.deepdive.codebreaker.service.AbstractGuessService;
 import edu.cnm.deepdive.codebreaker.service.GameService;
 import edu.cnm.deepdive.codebreaker.service.GuessService;
 import java.net.URI;
@@ -49,8 +51,8 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin({"http://localhost:4200"})
 public class GuessController {
 
-  private final GameService gameService;
-  private final GuessService guessService;
+  private final AbstractGameService gameService;
+  private final AbstractGuessService guessService;
 
   /**
    * Initializes this instance with a {@link GameService} and {@link GuessService}.
@@ -59,7 +61,7 @@ public class GuessController {
    * @param guessService Provider of high-level {@link Guess}-related operations.
    */
   @Autowired
-  public GuessController(GameService gameService, GuessService guessService) {
+  public GuessController(AbstractGameService gameService, AbstractGuessService guessService) {
     this.gameService = gameService;
     this.guessService = guessService;
   }

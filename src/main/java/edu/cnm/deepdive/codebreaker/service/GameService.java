@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
  * and unsolved codes only; deleting a single game; and deleting all codes.
  */
 @Service
-public class GameService {
+public class GameService implements AbstractGameService {
 
   private static final String POOL_PROPERTY = "pool";
   private static final String INVALID_CHARACTER_MESSAGE =
@@ -44,30 +44,13 @@ public class GameService {
   private final GameRepository gameRepository;
   private final Random rng;
 
-  /**
-   * Initializes the service with a {@link GameRepository} and {@link Random} (i.e. a source of
-   * randomness).
-   *
-   * @param gameRepository Persistence operations provider.
-   * @param rng            Source of randomness (for generating random codes).
-   */
   @Autowired
   public GameService(GameRepository gameRepository, Random rng) {
     this.gameRepository = gameRepository;
     this.rng = rng;
   }
 
-  /**
-   * Validates, completes, and adds the partially-specified {@link Game} instance to the collection.
-   * Minimally, {@code game} must contain a character pool and game length; if the text of the game
-   * is not included (which is always the case for {@link Game} instances deserialized from JSON),
-   * random text is automatically generated.
-   *
-   * @param game Partial {@link Game}.
-   * @return Completed and persisted {@link Game} instance.
-   * @throws InvalidPropertyException If {@code game} contains any invalid characters (whitespace,
-   *                                  control characters, or characters not included in the UCD).
-   */
+  @Override
   public Game add(@NonNull Game game) throws InvalidPropertyException {
     int[] pool = game
         .getPool()
@@ -93,15 +76,7 @@ public class GameService {
     return gameRepository.save(game);
   }
 
-  /**
-   * Retrieves an {@link Optional Optional&lt;Game&gt;}, specified by {@code externalKey}, from the
-   * collection. If there is no instance with the specified {@code externalKey} in the collection,
-   * the {@link Optional} returned is empty.
-   *
-   * @param externalKey Unique identifier of {@link Game} instance.
-   * @return {@link Optional Optional&lt;Game&gt;} containing {@link Game} referenced by {@code
-   * externalKey} (if it exists).
-   */
+  @Override
   public Optional<Game> get(@NonNull UUID externalKey) {
     try {
       return gameRepository.findByExternalKey(externalKey);
@@ -110,18 +85,12 @@ public class GameService {
     }
   }
 
-  /**
-   * Removes the specified {@link Game} instance from the collection.
-   *
-   * @param game {@link Game} to be removed.
-   */
+  @Override
   public void remove(@NonNull Game game) {
     gameRepository.delete(game);
   }
 
-  /**
-   * Removes all games from the collection.
-   */
+  @Override
   public void clear() {
     gameRepository.deleteAll();
   }

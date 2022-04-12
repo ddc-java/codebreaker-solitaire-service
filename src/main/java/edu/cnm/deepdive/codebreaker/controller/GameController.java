@@ -18,6 +18,7 @@ package edu.cnm.deepdive.codebreaker.controller;
 import edu.cnm.deepdive.codebreaker.controller.CodebreakerExceptionHandler.InvalidPropertyException;
 import edu.cnm.deepdive.codebreaker.model.entity.Game;
 import edu.cnm.deepdive.codebreaker.model.entity.Guess;
+import edu.cnm.deepdive.codebreaker.service.AbstractGameService;
 import edu.cnm.deepdive.codebreaker.service.GameService;
 import java.net.URI;
 import java.util.NoSuchElementException;
@@ -48,14 +49,14 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin({"http://localhost:4200"})
 public class GameController {
 
-  private final GameService gameService;
+  private final AbstractGameService gameService;
 
   /**
    * Initializes this instance with a {@link GameService}.
    *
    * @param gameService Provider of high-level {@link Game}-related operations.
    */
-  public GameController(GameService gameService) {
+  public GameController(AbstractGameService gameService) {
     this.gameService = gameService;
   }
 

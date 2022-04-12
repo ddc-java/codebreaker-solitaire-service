@@ -26,7 +26,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * implementation, no additional data-access operations are declared, beyond those in {@code
  * JpaRepository}.
  */
-public interface GuessRepository extends JpaRepository<Guess, UUID> {
+public interface GuessRepository extends JpaRepository<Guess, Long> {
 
   /**
    * Queries and returns the {@link Guess} instance (if it exists) with the specified {@code

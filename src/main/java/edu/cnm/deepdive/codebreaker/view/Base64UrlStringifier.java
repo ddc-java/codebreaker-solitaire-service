@@ -20,13 +20,13 @@ import java.util.Base64;
 import java.util.Base64.Decoder;
 import java.util.Base64.Encoder;
 import java.util.UUID;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * Service implementing the {@link UUIDStringifier} interface for a base64url representation of the
  * unsigned 128-bit value encapsulated in an instance of {@link UUID}.
  */
-@Component
+@Service
 public class Base64UrlStringifier implements UUIDStringifier {
 
   private final Encoder encoder = Base64.getUrlEncoder().withoutPadding();

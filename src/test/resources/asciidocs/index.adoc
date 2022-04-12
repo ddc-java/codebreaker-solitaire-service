@@ -125,7 +125,7 @@ Coding curriculum, we reserve the right to change the specifications below _with
 
 ===== Request
 
-`POST /codebreaker/games`
+`POST /codebreaker-solitaire/games`
 
 Starts a new game, randomly generating a secret code using the properties specified in the request body.
 
@@ -167,7 +167,7 @@ include::{snippets}/games/post-valid/http-response.adoc[]
 
 ===== Request
 
-`GET /codebreaker/games/{gameId}`
+`GET /codebreaker-solitaire/games/{gameId}`
 
 Returns the game with the unique identifier specified by `gameId`.
 
@@ -204,7 +204,7 @@ include::{snippets}/games/get-valid/http-response.adoc[]
 
 ===== Request
 
-`POST /codebreaker/games/{gameId}/guesses`
+`POST /codebreaker-solitaire/games/{gameId}/guesses`
 
 Submits a guess against the game specified by `gameId`.
 
@@ -256,7 +256,7 @@ include::{snippets}/guesses/post-valid/http-response.adoc[]
 
 ===== Request
 
-`GET /codebreaker/games/{gameId}/guesses/{guessId}`
+`GET /codebreaker-solitaire/games/{gameId}/guesses/{guessId}`
 
 Returns the guess with the unique identifier `guessId` submitted in the game identified by `gameId`.
 
@@ -292,7 +292,7 @@ include::{snippets}/guesses/get-valid/http-response.adoc[]
 
 ===== Request
 
-`DELETE /codebreaker/games/{gameId}`
+`DELETE /codebreaker-solitaire/games/{gameId}`
 
 Deletes the game (and all related guesses) with the unique identifier `gameId`.
 

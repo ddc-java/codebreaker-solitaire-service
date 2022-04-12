@@ -29,7 +29,7 @@ import org.springframework.data.jpa.repository.Query;
  * retrieve {@link Iterable Iterable&lt;Code&gt;}, optionally filtering on solution state, and
  * in descending order by creation date (i.e. most recent first).
  */
-public interface GameRepository extends JpaRepository<Game, UUID> {
+public interface GameRepository extends JpaRepository<Game, Long> {
 
   /**
    * Queries and returns the {@link Game} instance (if it exists) with the specified external

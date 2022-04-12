@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
  * unique key.
  */
 @Service
-public class GuessService {
+public class GuessService implements AbstractGuessService {
 
   private static final String INVALID_CHARACTERS = "^.*[^%s].*$";
   private static final String TEXT_PROPERTY = "text";
@@ -57,20 +57,7 @@ public class GuessService {
     this.guessRepository = guessRepository;
   }
 
-  /**
-   * Validates and matches the specified {@link Guess} against the related {@link Game}, and adds
-   * the former to the latter's collection of guesses. {@link Guess#getText() guess.getText()}{@link
-   * String#length() .length()} must be equal to {@link Game#getLength() game.getLength()}, and
-   * {@link Guess#getText() guess.getText()} must not include any characters that are not present in
-   * {@link Game#getPool() game.getPool()}. If these conditions are met, then {@link
-   * Guess#getText()} and {@link Game#getText()} are compared, to compute the number of exact and
-   * near-matches. Finally, {@code guess} is saved to the collection, as one of {@code game}'s
-   * guesses.
-   *
-   * @param game  Game with secret code being guessed.
-   * @param guess Submitted attempt to guess the secret code.
-   * @return Validated, summarized (in the numbers of matches), and saved {@code Guess}.
-   */
+  @Override
   public Guess add(@NonNull Game game, @NonNull Guess guess) throws InvalidPropertyException {
     validate(game, guess);
     int numCorrect = 0;
@@ -100,15 +87,7 @@ public class GuessService {
     return guessRepository.save(guess);
   }
 
-  /**
-   * Retrieves an {@link Optional Optional&lt;Guess&gt;}, specified by {@code externalKey}, from the
-   * collection. If there is no instance with the specified {@code externalKey} in the collection,
-   * the {@link Optional} returned is empty.
-   *
-   * @param externalKey Unique identifier of {@link Guess} instance.
-   * @return {@link Optional Optional&lt;Guess&gt;} containing {@link Guess} referenced by {@code
-   * externalKey} (if it exists).
-   */
+  @Override
   public Optional<Guess> get(@NonNull Game game, @NonNull UUID externalKey) {
     try {
       return guessRepository.findByGameAndExternalKey(game, externalKey);

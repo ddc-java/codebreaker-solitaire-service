@@ -1,31 +1,9 @@
 spring:
-  jackson:
-    deserialization:
-      accept-float-as-int: false
+  profiles:
+    active: service
   datasource:
     url: "jdbc:h2:file:./db/codebreaker"
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
-#    properties:
-#      javax:
-#        persistence:
-#          schema-generation:
-#            create-source: metadata
-#            scripts:
-#              action: create
-#              create-target: ddl.sql
-
-server:
-  error:
-    include-message: always
-  forward-headers-strategy: native
-  port: 8081
-  servlet:
-    context-path: /codebreaker
-
-schedule:
-  cron: 0 0 0 * * ?
-  zone: UTC
-  stale-game-days: 14

@@ -112,7 +112,7 @@ public class CodebreakerExceptionHandler {
     return new DetailedExceptionResponse(
         HttpStatus.BAD_REQUEST,
         VALIDATION_FAILURE_MESSAGE,
-        Map.of(ex.getText(), ex.getMessage()),
+        Map.of(ex.getProperty(), ex.getMessage()),
         request
     );
   }
@@ -166,16 +166,27 @@ public class CodebreakerExceptionHandler {
    */
   public static class InvalidPropertyException extends IllegalArgumentException {
 
-    private final String text;
+    private final String property;
     private final String message;
 
-    public InvalidPropertyException(String text, String message) {
-      this.text = text;
+    /**
+     * Initializes this instance with the specified property name and detailed message.
+     *
+     * @param property Name of property with an invalid value.
+     * @param message Description of validation failure.
+     */
+    public InvalidPropertyException(String property, String message) {
+      this.property = property;
       this.message = message;
     }
 
-    public String getText() {
-      return text;
+    /**
+     * Returns Name of property failing validation check.
+     *
+     * @return
+     */
+    public String getProperty() {
+      return property;
     }
 
     @Override
@@ -217,6 +228,8 @@ public class CodebreakerExceptionHandler {
 
     /**
      * Returns the timestamp of the error.
+     *
+     * @return
      */
     public Date getTimestamp() {
       return timestamp;
@@ -224,6 +237,8 @@ public class CodebreakerExceptionHandler {
 
     /**
      * Returns the HTTP response status code. indicating the general error type.
+     *
+     * @return
      */
     public int getStatus() {
       return status;
@@ -231,6 +246,8 @@ public class CodebreakerExceptionHandler {
 
     /**
      * Returns a short text description of the general error type.
+     *
+     * @return
      */
     public String getMessage() {
       return message;
@@ -238,6 +255,8 @@ public class CodebreakerExceptionHandler {
 
     /**
      * Returns a summary description of the specific error.
+     *
+     * @return
      */
     public String getError() {
       return error;
@@ -245,6 +264,8 @@ public class CodebreakerExceptionHandler {
 
     /**
      * Returns the host-relative path portion of the requested URL.
+     *
+     * @return
      */
     public String getPath() {
       return path;

@@ -1,21 +1,17 @@
 spring:
+  application:
+    name: service
   jackson:
     deserialization:
       accept-float-as-int: false
-  datasource:
-    url: "jdbc:h2:mem:"
 
 server:
-  servlet:
-    context-path: /codebreaker-solitaire
   error:
     include-message: always
   forward-headers-strategy: native
   port: 8081
-
-rest-docs:
-  host: ddc-java.services
-  scheme: https
+  servlet:
+    context-path: /codebreaker-solitaire
 
 schedule:
   cron: 0 0 0 * * ?

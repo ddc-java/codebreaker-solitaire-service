@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import edu.cnm.deepdive.codebreaker.view.UUIDSerializer;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,7 +40,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -72,9 +70,9 @@ public class Game {
   @NonNull
   @Id
   @GeneratedValue
-  @Column(name = "game_id", updatable = false, columnDefinition = "UUID")
+  @Column(name = "game_id", updatable = false)
   @JsonIgnore
-  private UUID id;
+  private Long id;
 
   @NonNull
   @Column(nullable = false, updatable = false, unique = true, columnDefinition = "UUID")
@@ -89,6 +87,7 @@ public class Game {
   @JsonProperty(access = Access.READ_ONLY)
   private Date created;
 
+  @SuppressWarnings("DefaultAnnotationParam")
   @NonNull
   @Column(length = MAX_POOL_LENGTH, nullable = false, updatable = false)
   @NotEmpty
@@ -112,15 +111,21 @@ public class Game {
 
   /**
    * Returns the primary key and (internal) unique identifier of this code.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   @NonNull
-  public UUID getId() {
+  public Long getId() {
     return id;
   }
 
   /**
    * Returns the external identifier of this code.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   @NonNull
   public UUID getExternalKey() {
     return externalKey;
@@ -128,7 +133,10 @@ public class Game {
 
   /**
    * Returns the date this code was first created and persisted to the database.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   @NonNull
   public Date getCreated() {
     return created;
@@ -137,7 +145,10 @@ public class Game {
   /**
    * Returns (as a {@code String}) the pool of characters from which the code of this game was
    * generated.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   @NonNull
   public String getPool() {
     return pool;
@@ -147,7 +158,10 @@ public class Game {
    * Sets the pool of characters from which the code of this game was generated. This pool is not
    * used after generation, but is intended to be returned to the client for informational purposes
    * only.
+   *
+   * @param pool
    */
+  @SuppressWarnings("JavaDoc")
   public void setPool(@NonNull String pool) {
     this.pool = pool;
   }
@@ -155,14 +169,20 @@ public class Game {
   /**
    * Returns the generated code. This is not intended to be returned to the client; instead, the
    * {@link #getSolution()} method should be used for state-dependent return of this value.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   public String getText() {
     return text;
   }
 
   /**
    * Sets the generated code to be guessed.
+   *
+   * @param code
    */
+  @SuppressWarnings("JavaDoc")
   public void setText(@NonNull String code) {
     this.text = code;
   }
@@ -170,21 +190,30 @@ public class Game {
   /**
    * Returns the length of the code. This pool is not used after generation, but is intended to be
    * returned to the client for informational purposes only.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   public int getLength() {
     return length;
   }
 
   /**
    * Sets the length of the code to be guessed.
+   *
+   * @param length
    */
+  @SuppressWarnings("JavaDoc")
   public void setLength(int length) {
     this.length = length;
   }
 
   /**
    * Returns the {@link List List&lt;Guess&gt;} of guesses submitted against this code.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   @NonNull
   public List<Guess> getGuesses() {
     return guesses;
@@ -192,7 +221,10 @@ public class Game {
 
   /**
    * Returns a {@code boolean} flag indicating whether the code has been guessed successfully.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   public boolean isSolved() {
     return guesses
         .stream()
@@ -202,7 +234,10 @@ public class Game {
   /**
    * Returns the generated code, if it has been guessed successfully; otherwise, {@code null} is
    * returned.
+   *
+   * @return
    */
+  @SuppressWarnings("JavaDoc")
   @JsonProperty("text")
   public String getSolution() {
     return isSolved() ? text : null;
