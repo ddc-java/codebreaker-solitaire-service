@@ -41,6 +41,7 @@
 # - metadata
 .vscode/
 
+
 ### Gradle ###
 
 # - temporary files
@@ -59,22 +60,23 @@ HELP.md
 /target/
 
 
-### Derby ###
-
-# - database directory
-/db/
-
-# - log file
-derby.log
-
-### Floobits ###
-
-# - metadata
-.floo
-.flooignore
-
-
 ### OS X ###
 
 # - metadata
 .DS_Store
+
+
+### Embedded database ###
+
+# Derby directory, as specified in src/main/resources/application.yml
+/db/
+
+# Derby log file
+derby.log
+
+
+### Floobits ###
+
+.floo*
+
+
