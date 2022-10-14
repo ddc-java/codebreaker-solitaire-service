@@ -31,7 +31,7 @@ public class Beans {
    * Returns an instance of {@link Random} (or a subclass), which may be used by Spring to satisfy
    * an explicit bean request or a dependency declared by a Spring component.
    *
-   * @return
+   * @return (See above.)
    */
   @SuppressWarnings("JavaDoc")
   @Bean

@@ -56,6 +56,7 @@ public interface UUIDStringifier {
    * making this a subclass of {@link IllegalArgumentException}, we have more control over the
    * response to a consumer as a result of such as failure.
    */
+  @SuppressWarnings("unused")
   class DecodeException extends IllegalArgumentException {
 
     /**

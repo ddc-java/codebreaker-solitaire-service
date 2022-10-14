@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
  * its external key; defining and applying query filters to select all codes, solved codes only,
  * and unsolved codes only; deleting a single game; and deleting all codes.
  */
+@SuppressWarnings("JavadocDeclaration")
 @Service
 public class GameService implements AbstractGameService {
 
@@ -44,6 +45,12 @@ public class GameService implements AbstractGameService {
   private final GameRepository gameRepository;
   private final Random rng;
 
+  /**
+   * Initialize this instance by injecting the required {@link GameRepository} and {@link Random}.
+   *
+   * @param gameRepository
+   * @param rng
+   */
   @Autowired
   public GameService(GameRepository gameRepository, Random rng) {
     this.gameRepository = gameRepository;

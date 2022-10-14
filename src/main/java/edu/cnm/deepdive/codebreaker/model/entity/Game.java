@@ -52,7 +52,7 @@ import org.springframework.lang.NonNull;
  * codemaker. Annotations are used to specify the view&mdash;the JSON representation of the
  * code&mdash;which changes, depending on whether the code has been solved (guessed) successfully.
  */
-@SuppressWarnings("JpaDataSourceORMInspection")
+@SuppressWarnings({"JpaDataSourceORMInspection", "unused", "JavadocDeclaration"})
 @Entity
 @Table(
     indexes = @Index(columnList = "created")
@@ -112,9 +112,9 @@ public class Game {
   /**
    * Returns the primary key and (internal) unique identifier of this code.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public Long getId() {
     return id;
@@ -123,9 +123,9 @@ public class Game {
   /**
    * Returns the external identifier of this code.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public UUID getExternalKey() {
     return externalKey;
@@ -134,9 +134,9 @@ public class Game {
   /**
    * Returns the date this code was first created and persisted to the database.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public Date getCreated() {
     return created;
@@ -146,9 +146,9 @@ public class Game {
    * Returns (as a {@code String}) the pool of characters from which the code of this game was
    * generated.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public String getPool() {
     return pool;
@@ -161,7 +161,6 @@ public class Game {
    *
    * @param pool
    */
-  @SuppressWarnings("JavaDoc")
   public void setPool(@NonNull String pool) {
     this.pool = pool;
   }
@@ -170,9 +169,9 @@ public class Game {
    * Returns the generated code. This is not intended to be returned to the client; instead, the
    * {@link #getSolution()} method should be used for state-dependent return of this value.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   public String getText() {
     return text;
   }
@@ -182,7 +181,6 @@ public class Game {
    *
    * @param code
    */
-  @SuppressWarnings("JavaDoc")
   public void setText(@NonNull String code) {
     this.text = code;
   }
@@ -191,9 +189,9 @@ public class Game {
    * Returns the length of the code. This pool is not used after generation, but is intended to be
    * returned to the client for informational purposes only.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   public int getLength() {
     return length;
   }
@@ -203,7 +201,6 @@ public class Game {
    *
    * @param length
    */
-  @SuppressWarnings("JavaDoc")
   public void setLength(int length) {
     this.length = length;
   }
@@ -211,9 +208,9 @@ public class Game {
   /**
    * Returns the {@link List List&lt;Guess&gt;} of guesses submitted against this code.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public List<Guess> getGuesses() {
     return guesses;
@@ -222,9 +219,9 @@ public class Game {
   /**
    * Returns a {@code boolean} flag indicating whether the code has been guessed successfully.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   public boolean isSolved() {
     return guesses
         .stream()
@@ -235,9 +232,9 @@ public class Game {
    * Returns the generated code, if it has been guessed successfully; otherwise, {@code null} is
    * returned.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @JsonProperty("text")
   public String getSolution() {
     return isSolved() ? text : null;

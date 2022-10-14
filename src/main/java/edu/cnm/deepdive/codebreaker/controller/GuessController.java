@@ -31,7 +31,6 @@ import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -91,8 +90,6 @@ public class GuessController {
    * @return Validated and persisted {@link Guess} instance.
    * @throws NoSuchElementException          If {@code gameId} does not refer to a known {@link
    *                                         Game}.
-   * @throws MethodArgumentNotValidException If the {@code guess} properties fail low-level
-   *                                         validation for data model integrity.
    * @throws InvalidPropertyException        If the {@code guess} properties fail high-level
    *                                         validation against business rules.
    */
@@ -100,7 +97,7 @@ public class GuessController {
       consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Guess> post(
       @PathVariable UUID gameId, @Valid @RequestBody Guess guess)
-      throws NoSuchElementException, MethodArgumentNotValidException, InvalidPropertyException {
+      throws NoSuchElementException, InvalidPropertyException {
     return gameService
         .get(gameId)
         .map((game) -> guessService.add(game, guess))

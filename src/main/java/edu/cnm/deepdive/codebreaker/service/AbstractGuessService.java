@@ -7,6 +7,10 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.lang.NonNull;
 
+/**
+ * Declares methods for guess-level operations: add/record a new guess on an exising game, retrieve
+ * a specific guess within a game.
+ */
 public interface AbstractGuessService {
 
   /**

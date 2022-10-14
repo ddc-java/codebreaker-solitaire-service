@@ -46,7 +46,7 @@ import org.springframework.lang.NonNull;
  * Encapsulates a single guess, submitted by a codebreaker, against a {@link Game}. Annotations are
  * used to specify the view&mdash;the JSON representation of the guess.
  */
-@SuppressWarnings("JpaDataSourceORMInspection")
+@SuppressWarnings({"JpaDataSourceORMInspection", "unused", "JavadocDeclaration"})
 @Entity
 @Table(
     indexes = @Index(columnList = "created")
@@ -98,9 +98,9 @@ public class Guess {
   /**
    * Returns the primary key and (internal) unique identifier of this guess.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public Long getId() {
     return id;
@@ -109,9 +109,9 @@ public class Guess {
   /**
    * Returns the external identifier of this guess.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public UUID getExternalKey() {
     return externalKey;
@@ -120,9 +120,9 @@ public class Guess {
   /**
    * Returns the date this guess was first submitted and persisted to the database.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public Date getCreated() {
     return created;
@@ -131,9 +131,9 @@ public class Guess {
   /**
    * Returns the {@link Game} instance against which this guess was submitted.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public Game getGame() {
     return game;
@@ -144,7 +144,6 @@ public class Guess {
    *
    * @param game
    */
-  @SuppressWarnings("JavaDoc")
   public void setGame(@NonNull Game game) {
     this.game = game;
   }
@@ -152,9 +151,9 @@ public class Guess {
   /**
    * Returns the text of this guess.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   @NonNull
   public String getText() {
     return text;
@@ -165,7 +164,6 @@ public class Guess {
    *
    * @param text
    */
-  @SuppressWarnings("JavaDoc")
   public void setText(@NonNull String text) {
     this.text = text;
   }
@@ -174,9 +172,8 @@ public class Guess {
    * Returns the number of characters in this guess which are found in the same positions in the
    * code.
    *
-   * @return
+   * @return (See above.)
    */
-  @SuppressWarnings("JavaDoc")
   public int getExactMatches() {
     return exactMatches;
   }
@@ -186,7 +183,6 @@ public class Guess {
    *
    * @param exactMatches
    */
-  @SuppressWarnings("JavaDoc")
   public void setExactMatches(int exactMatches) {
     this.exactMatches = exactMatches;
   }
@@ -196,9 +192,9 @@ public class Guess {
    * code (not counting those characters in the code that are matched exactly by other occurrences
    * of the same character in the guess).
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   public int getNearMatches() {
     return nearMatches;
   }
@@ -210,7 +206,6 @@ public class Guess {
    *
    * @param nearMatches
    */
-  @SuppressWarnings("JavaDoc")
   public void setNearMatches(int nearMatches) {
     this.nearMatches = nearMatches;
   }
@@ -218,9 +213,9 @@ public class Guess {
   /**
    * Returns a {@code boolean} flag indicating whether this guess matches the code exactly.
    *
-   * @return
+   * @return (See above.)
+
    */
-  @SuppressWarnings("JavaDoc")
   public boolean isSolution() {
     return exactMatches == game.getLength();
   }

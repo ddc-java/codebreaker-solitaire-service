@@ -6,6 +6,10 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.lang.NonNull;
 
+/**
+ * Declares the methods to perform game-level operations: add/start a game, get a specified game,
+ * remove a specified game, clear all games.
+ */
 public interface AbstractGameService {
 
   /**

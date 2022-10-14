@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * {@link GuessController}) to HTTP response statuses. For some of these, the response body is an
  * instance of {@link DetailedExceptionResponse}.
  */
+@SuppressWarnings("unused")
 @RestControllerAdvice
 public class CodebreakerExceptionHandler {
 
@@ -167,7 +168,6 @@ public class CodebreakerExceptionHandler {
   public static class InvalidPropertyException extends IllegalArgumentException {
 
     private final String property;
-    private final String message;
 
     /**
      * Initializes this instance with the specified property name and detailed message.
@@ -176,23 +176,19 @@ public class CodebreakerExceptionHandler {
      * @param message Description of validation failure.
      */
     public InvalidPropertyException(String property, String message) {
+      super(message);
       this.property = property;
-      this.message = message;
     }
 
     /**
      * Returns Name of property failing validation check.
      *
-     * @return
+     * @return (See above.)
      */
     public String getProperty() {
       return property;
     }
 
-    @Override
-    public String getMessage() {
-      return message;
-    }
   }
 
   /**
@@ -229,7 +225,7 @@ public class CodebreakerExceptionHandler {
     /**
      * Returns the timestamp of the error.
      *
-     * @return
+     * @return (See above.)
      */
     public Date getTimestamp() {
       return timestamp;
@@ -238,7 +234,7 @@ public class CodebreakerExceptionHandler {
     /**
      * Returns the HTTP response status code. indicating the general error type.
      *
-     * @return
+     * @return (See above.)
      */
     public int getStatus() {
       return status;
@@ -247,7 +243,7 @@ public class CodebreakerExceptionHandler {
     /**
      * Returns a short text description of the general error type.
      *
-     * @return
+     * @return (See above.)
      */
     public String getMessage() {
       return message;
@@ -256,7 +252,7 @@ public class CodebreakerExceptionHandler {
     /**
      * Returns a summary description of the specific error.
      *
-     * @return
+     * @return (See above.)
      */
     public String getError() {
       return error;
@@ -265,7 +261,7 @@ public class CodebreakerExceptionHandler {
     /**
      * Returns the host-relative path portion of the requested URL.
      *
-     * @return
+     * @return (See above.)
      */
     public String getPath() {
       return path;
@@ -276,7 +272,7 @@ public class CodebreakerExceptionHandler {
      * where each key is a request property name, and the associated value is the specific issue
      * with the property.
      *
-     * @return Property-to-error {@link Map}.
+     * @return (See above.)
      */
     public Map<String, String> getDetails() {
       return details;
