@@ -149,12 +149,14 @@
         <executions>
           <execution>
             <id>attach-javadocs</id>
+            <phase>prepare-package</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>javadoc</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
+          <reportOutputDirectory>${project.build.outputDirectory}/static/apidocs</reportOutputDirectory>
           <links>
             <link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
             <link>https://docs.spring.io/spring-framework/docs/current/javadoc-api/</link>

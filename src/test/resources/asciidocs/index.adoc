@@ -61,7 +61,7 @@ Using the codemaker's response to the most recent guess, along with responses to
 
 A single game ends when the codebreaker successfully guesses the code.
 
-Typically players will play multiple games, alternating roles, and keeping a tally of the total number of guesses for each player. After an agreed-upon number of games, the player with the lowest guess tally wins.
+Typically, players will play multiple games, alternating roles, and keeping a tally of the total number of guesses for each player. After an agreed-upon number of games, the player with the lowest guess tally wins.
 
 === Example game
 
