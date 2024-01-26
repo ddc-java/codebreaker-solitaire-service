@@ -1,5 +1,5 @@
 /*
- *  Copyright 2022 CNM Ingenuity, Inc.
+ *  Copyright 2024 CNM Ingenuity, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -68,13 +68,13 @@ public class CodebreakerExceptionHandler {
   }
 
   /**
-   * Maps {@link MethodArgumentNotValidException} (thrown when one of the {@link javax.validation}
-   * conditions, declared on fields of {@link Game} and {@link edu.cnm.deepdive.codebreaker.model.entity.Guess},
-   * fails) to the HTTP 400 (bad request) response status, then constructs and returns a response
-   * body with details on the failure.
+   * Maps {@link MethodArgumentNotValidException} (thrown when one of the {@link jakarta.validation}
+   * conditions, declared on fields of {@link Game} and
+   * {@link edu.cnm.deepdive.codebreaker.model.entity.Guess}, fails) to the HTTP 400 (bad request)
+   * response status, then constructs and returns a response body with details on the failure.
    *
    * @param ex      {@link MethodArgumentNotValidException} thrown by one of the {@link
-   *                javax.validation} conditions.
+   *                jakarta.validation} conditions.
    * @param request {@link HttpServletRequest} containing the request that failed validation.
    * @return {@link DetailedExceptionResponse} with details extracted from {@code ex}.
    */

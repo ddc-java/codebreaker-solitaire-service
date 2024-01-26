@@ -368,12 +368,12 @@ The source code and documentation of Codebreaker were written by Nicholas Bennet
 [discrete]
 ==== Documentation
 
-(C) 2022 CNM Ingenuity, Inc. All rights reserved.
+(C) 2024 CNM Ingenuity, Inc. All rights reserved.
 
 [discrete]
 ==== Source code
 
-(C) 2022 CNM Ingenuity, Inc.
+(C) 2024 CNM Ingenuity, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -8,7 +8,7 @@ For more information, see the live service documentation at <https://ddc-java.se
 
 Written by Nicholas Bennett.
 
-&copy; 2022 CNM Ingenuity, Inc.
+&copy; 2024 CNM Ingenuity, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

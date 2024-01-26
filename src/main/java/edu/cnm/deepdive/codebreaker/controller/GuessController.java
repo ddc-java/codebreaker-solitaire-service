@@ -1,5 +1,5 @@
 /*
- *  Copyright 2022 CNM Ingenuity, Inc.
+ *  Copyright 2024 CNM Ingenuity, Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import edu.cnm.deepdive.codebreaker.service.GuessService;
 import java.net.URI;
 import java.util.NoSuchElementException;
 import java.util.UUID;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.server.ExposesResourceFor;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
