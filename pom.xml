@@ -24,15 +24,15 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.2.2</version>
+    <version>3.2.5</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
   <groupId>edu.cnm.deepdive</groupId>
   <artifactId>codebreaker-solitaire-service</artifactId>
-  <version>4.1.1</version>
+  <version>4.2.0</version>
   <name>Codebreaker Solitaire Service</name>
-  <description>Code generator &amp; game service</description>
+  <description>Secret code generator &amp; gameplay service</description>
 
   <properties>
     <java.version>21</java.version>
@@ -49,23 +49,11 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-hateoas</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.jayway.jsonpath</groupId>
-          <artifactId>json-path</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.jayway.jsonpath</groupId>
-      <artifactId>json-path</artifactId>
-      <version>2.9.0</version>
     </dependency>
 
     <dependency>
@@ -105,7 +93,7 @@
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>2.2.5</version>
+        <version>3.0.0</version>
         <executions>
           <execution>
             <id>generate-docs</id>
@@ -142,7 +130,8 @@
           </execution>
         </executions>
         <configuration>
-          <reportOutputDirectory>${project.build.outputDirectory}/static/apidocs</reportOutputDirectory>
+          <reportOutputDirectory>${project.build.outputDirectory}/static/apidocs
+          </reportOutputDirectory>
           <links>
             <link>https://docs.oracle.com/en/java/javase/21/docs/api/</link>
             <link>https://docs.spring.io/spring-framework/docs/current/javadoc-api/</link>
@@ -154,9 +143,15 @@
             <link>https://docs.jboss.org/hibernate/orm/current/javadocs/</link>
             <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-core/latest/</link>
             <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-databind/latest/</link>
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/latest/index.html</link>
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.14.0-rc2/</link>
-            <link>https://javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.14.0-rc2/</link>
+            <link>
+              https://javadoc.io/doc/com.fasterxml.jackson.core/jackson-annotations/latest/index.html
+            </link>
+            <link>
+              https://javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.14.0-rc2/
+            </link>
+            <link>
+              https://javadoc.io/doc/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.14.0-rc2/
+            </link>
           </links>
         </configuration>
       </plugin>
@@ -164,7 +159,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.3.1</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -173,6 +168,12 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.12.1</version>
       </plugin>
 
       <plugin>

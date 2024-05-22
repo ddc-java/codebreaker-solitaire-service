@@ -20,7 +20,7 @@ limitations under the License.
 
 Spring Framework, Spring Boot, Spring Data, Spring HATEOAS, Spring REST Docs 
 
-Copyright 2012-2021 the original author or authors.
+Copyright 2012-2024 the original author or authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -40,4 +40,4 @@ Hibernate ORM
 
 Copyright 2021 Red Hat Inc.
 
-Licensed under the GNU Lesser General Public Library, version 2.1. You can find a copy of this license at https://www.gnu.org/licenses/lgpl-2.1.en.html
+Licensed under the GNU Lesser General Public License, version 2.1. You can find a copy of this license at https://www.gnu.org/licenses/lgpl-2.1.en.html
